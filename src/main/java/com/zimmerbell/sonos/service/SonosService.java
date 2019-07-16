@@ -57,7 +57,7 @@ public class SonosService implements Serializable {
 	public static final String SESSION_ATTRIBUTE_GROUPS = "groups";
 	public static final String SESSION_ATTRIBUTE_GROUP = "group";
 
-	private Gson gson;
+	private transient Gson gson;
 
 	/**
 	 * 
