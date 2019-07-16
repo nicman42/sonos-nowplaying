@@ -4,6 +4,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.image.ExternalImage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class StatusPage extends AbstractBasePage {
 		form.add(new Label("track", trackModel.map(Track::getName)));
 		form.add(new Label("album", trackModel.map(Track::getAlbum).map(Album::getName)));
 
-//		form.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)));
+		form.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)));
 
 		Track track = trackModel.getObject();
 		if (track != null) {
