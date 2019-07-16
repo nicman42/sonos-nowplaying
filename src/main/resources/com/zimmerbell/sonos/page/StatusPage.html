@@ -6,14 +6,15 @@
 </wicket:head>
 </head>
 <body>
-	<h1>NowPlaying</h1>
-	<form wicket:id="form">
-		<select wicket:id="households"></select> <select wicket:id="groups"></select>
+	<wicket:extend>
+		<h1>NowPlaying</h1>
+		<form wicket:id="form">
+			<select wicket:id="households"></select> <select wicket:id="groups"></select>
 
-		<div wicket:id="track"></div>
-		<div wicket:id="album"></div>
-<!-- 		<img wicket:id="image" /> -->
-	</form>
-
+			<div wicket:id="track"></div>
+			<div wicket:id="album"></div>
+			<!-- 		<img wicket:id="image" /> -->
+		</form>
+	</wicket:extend>
 </body>
 </html>
