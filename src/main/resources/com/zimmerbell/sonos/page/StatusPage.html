@@ -9,7 +9,16 @@
 	<wicket:extend>
 		<h1>NowPlaying</h1>
 		<form wicket:id="form">
-			<select wicket:id="households"></select> <select wicket:id="groups"></select>
+			<div class="form-row">
+				<div class="form-group col-md-6">
+					<label>Household</label>
+					<select wicket:id="households" class="form-control"></select>
+				</div>
+				<div class="form-group col-md-6">
+					<label>Group</label>
+					<select wicket:id="groups" class="form-control"></select>
+				</div>
+			</div>
 
 			<div wicket:id="track"></div>
 			<div wicket:id="album"></div>

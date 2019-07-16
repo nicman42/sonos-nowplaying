@@ -45,10 +45,19 @@ public class StatusPage extends AbstractBasePage {
 			}
 		});
 
-		form.add(new DropDownChoice<Household>("households", new HouseholdModel(), new HouseholdsModel()));
+		HouseholdsModel householdsModel = new HouseholdsModel();
+		HouseholdModel householdModel = new HouseholdModel();
+		if (householdModel.getObject() == null && householdsModel.getObject().size() == 1) {
+			householdModel.setObject(householdsModel.getObject().get(0));
+		}
+		form.add(new DropDownChoice<Household>("households", householdModel, householdsModel));
 
+		GroupsModel groupsModel = new GroupsModel();
 		GroupModel groupModel = new GroupModel();
-		form.add(new DropDownChoice<>("groups", groupModel, new GroupsModel()));
+		if (groupModel.getObject() == null && groupsModel.getObject().size() == 1) {
+			groupModel.setObject(groupsModel.getObject().get(0));
+		}
+		form.add(new DropDownChoice<>("groups", groupModel, groupsModel));
 
 		TrackModel trackModel = new TrackModel();
 		form.add(new Label("track", trackModel.map(Track::getName)));
