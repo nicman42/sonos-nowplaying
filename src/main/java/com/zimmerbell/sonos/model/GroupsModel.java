@@ -2,8 +2,6 @@ package com.zimmerbell.sonos.model;
 
 import java.util.Collections;
 
-import org.apache.wicket.Session;
-
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.service.SonosService;
@@ -13,7 +11,7 @@ public class GroupsModel extends SessionListModel<Group> {
 
 	public GroupsModel() {
 		super(SonosService.SESSION_ATTRIBUTE_GROUPS, () -> {
-			Household household = (Household) Session.get().getAttribute(SonosService.SESSION_ATTRIBUTE_HOUSEHOLD);
+			Household household = new SonosService().getHousehold();
 			if (household == null) {
 				return Collections.emptyList();
 			}

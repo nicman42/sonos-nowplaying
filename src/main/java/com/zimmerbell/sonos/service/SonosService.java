@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -124,7 +125,15 @@ public class SonosService implements Serializable {
 		}
 
 	}
-
+	
+	public Household getHousehold() {
+		return (Household) Session.get().getAttribute(SonosService.SESSION_ATTRIBUTE_HOUSEHOLD);
+	}
+	
+	public Group getGroup() {
+		return (Group) Session.get().getAttribute(SonosService.SESSION_ATTRIBUTE_GROUP);
+	}
+	
 	private JsonElement apiRequest(String... path) throws IOException {
 		StringBuilder url = new StringBuilder("https://api.ws.sonos.com/control/api/v1");
 		for (String s : path) {

@@ -16,6 +16,7 @@ import com.zimmerbell.sonos.model.GroupModel;
 import com.zimmerbell.sonos.model.GroupsModel;
 import com.zimmerbell.sonos.model.HouseholdModel;
 import com.zimmerbell.sonos.model.HouseholdsModel;
+import com.zimmerbell.sonos.model.TrackModel;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.Track;
@@ -52,22 +53,8 @@ public class StatusPage extends AbstractBasePage {
 		GroupModel groupModel = new GroupModel();
 		form.add(new DropDownChoice<>("groups", groupModel, new GroupsModel()));
 
-		try {
-			Group group = groupModel.getObject();
-			Track track = group == null ? null : getSonosService().queryPlaybackMetadata(group);
-			form.add(new Label("track", LambdaModel.of(() -> track == null ? null : track.getName())));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-//			if (groups.size() > 0) {
-//				Group group = groups.get(0);
-//
-//				log.info("group: {} ({})", group, group.getPlaybackState());
-//
-//				Track track = getSonosService().queryPlaybackMetadata(group);
-//				log.info("track: {}", track.getName());
-//			}
+		TrackModel trackModel = new TrackModel();
+		form.add(new Label("track", trackModel.map(Track::getName)));
 	}
 
 }
