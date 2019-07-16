@@ -2,6 +2,7 @@ package com.zimmerbell.sonos.service;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -46,8 +47,12 @@ public class SonosService {
 		SONOS_CLIENT_ID = properties.getProperty("sonos_client_id");
 		SONOS_CLIENT_SECRET = properties.getProperty("sonos_client_secret");
 	}
-	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN = "access_token";
 	private static final String PAGE_PARAM_AUTH_CODE = "code";
+	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN = "access_token";
+	public static final String SESSION_ATTRIBUTE_HOUSEHOLDS = "households";
+	public static final String SESSION_ATTRIBUTE_HOUSEHOLD = "household";
+	public static final String SESSION_ATTRIBUTE_GROUPS = "groups";
+	public static final String SESSION_ATTRIBUTE_GROUP = "group";
 
 	private Gson gson;
 
@@ -141,14 +146,12 @@ public class SonosService {
 
 	public List<Household> queryHouseholds() throws IOException {
 		JsonArray households = apiRequest("households").getAsJsonObject().get("households").getAsJsonArray();
-
 		return jsonToList(households, Household.class);
 	}
 
 	public List<Group> queryGroups(Household household) throws IOException {
 		JsonArray groups = apiRequest("households", household.getId(), "groups").getAsJsonObject().get("groups")
 				.getAsJsonArray();
-
 		return jsonToList(groups, Group.class);
 	}
 
@@ -168,7 +171,7 @@ public class SonosService {
 	private <T> T jsonToObject(JsonElement jsonElement, Class<T> classOfT) {
 		return gson().fromJson(jsonElement, classOfT);
 	}
-	
+
 	private String getAccessToken() {
 		return (String) WebSession.get().getAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN);
 	}
@@ -178,5 +181,15 @@ public class SonosService {
 			gson = new Gson();
 		}
 		return gson;
+	}
+
+	@FunctionalInterface
+	public interface CheckedSupplier<T> extends Serializable {
+		/**
+		 * Gets a result.
+		 *
+		 * @return a result
+		 */
+		T get() throws IOException;
 	}
 }

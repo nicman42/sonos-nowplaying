@@ -21,7 +21,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>8.5.0</wicket.version>
+		<wicket.version>8.3.0</wicket.version>
 	</properties>
 
 	<dependencies>
@@ -31,9 +31,15 @@
 			<version>${wicket.version}</version>
 		</dependency>
 
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.apache.wicket</groupId> -->
+<!-- 			<artifactId>wicket-auth-roles</artifactId> -->
+<!-- 			<version>${wicket.version}</version> -->
+<!-- 		</dependency> -->
+		
 		<dependency>
-			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket-auth-roles</artifactId>
+			<groupId>com.googlecode.wicket-jquery-ui</groupId>
+			<artifactId>wicket-jquery-ui</artifactId>
 			<version>${wicket.version}</version>
 		</dependency>
 
