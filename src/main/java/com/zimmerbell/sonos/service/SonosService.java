@@ -31,7 +31,9 @@ import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.Track;
 
-public class SonosService {
+public class SonosService implements Serializable {
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger log = LoggerFactory.getLogger(SonosService.class);
 
 	private static final String SONOS_CLIENT_ID;
