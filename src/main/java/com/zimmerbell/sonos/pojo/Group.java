@@ -1,6 +1,8 @@
 package com.zimmerbell.sonos.pojo;
 
 public class Group extends AbstractObject {
+	private static final long serialVersionUID = 1L;
+	
 	private String name;
 	private String playbackState;
 
