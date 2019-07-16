@@ -125,15 +125,15 @@ public class SonosService implements Serializable {
 		}
 
 	}
-	
+
 	public Household getHousehold() {
 		return (Household) Session.get().getAttribute(SonosService.SESSION_ATTRIBUTE_HOUSEHOLD);
 	}
-	
+
 	public Group getGroup() {
 		return (Group) Session.get().getAttribute(SonosService.SESSION_ATTRIBUTE_GROUP);
 	}
-	
+
 	private JsonElement apiRequest(String... path) throws IOException {
 		StringBuilder url = new StringBuilder("https://api.ws.sonos.com/control/api/v1");
 		for (String s : path) {
@@ -156,8 +156,15 @@ public class SonosService implements Serializable {
 	}
 
 	public List<Household> queryHouseholds() throws IOException {
-		JsonArray households = apiRequest("households").getAsJsonObject().get("households").getAsJsonArray();
-		return jsonToList(households, Household.class);
+		JsonArray jsonArray = apiRequest("households").getAsJsonObject().get("households").getAsJsonArray();
+		List<Household> households = jsonToList(jsonArray, Household.class);
+		int i = 1;
+		for (Household household : households) {
+			if (household.getName() == null) {
+				household.setName("Household#" + i++);
+			}
+		}
+		return households;
 	}
 
 	public List<Group> queryGroups(Household household) throws IOException {
