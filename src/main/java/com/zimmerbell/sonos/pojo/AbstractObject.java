@@ -1,6 +1,10 @@
 package com.zimmerbell.sonos.pojo;
 
-public abstract class AbstractObject {
+import java.io.Serializable;
+
+public abstract class AbstractObject implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String id;
 
 	public String getId() {

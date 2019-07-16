@@ -1,6 +1,10 @@
 package com.zimmerbell.sonos.pojo;
 
-public class Track {
+import java.io.Serializable;
+
+public class Track implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String name;
 	private String imageUrl;
 
