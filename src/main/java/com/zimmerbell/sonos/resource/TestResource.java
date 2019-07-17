@@ -28,7 +28,12 @@ public class TestResource extends AbstractResource {
 		}
 
 		ResourceResponse resourceResponse = new ResourceResponse();
+		resourceResponse.setWriteCallback(new WriteCallback() {
+			@Override
+			public void writeData(Attributes attributes) throws IOException {
 
+			}
+		});
 		return resourceResponse;
 	}
 
