@@ -31,12 +31,6 @@
 			<version>${wicket.version}</version>
 		</dependency>
 
-		<!-- <dependency> -->
-		<!-- <groupId>org.apache.wicket</groupId> -->
-		<!-- <artifactId>wicket-auth-roles</artifactId> -->
-		<!-- <version>${wicket.version}</version> -->
-		<!-- </dependency> -->
-
 		<dependency>
 			<groupId>com.googlecode.wicket-jquery-ui</groupId>
 			<artifactId>wicket-jquery-ui</artifactId>
@@ -46,8 +40,19 @@
 		<dependency>
 			<groupId>de.agilecoders.wicket</groupId>
 			<artifactId>wicket-bootstrap-extensions</artifactId>
-<!-- 			<version>2.0.10</version> -->
 			<version>3.0.0-M11</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.wicketstuff</groupId>
+			<artifactId>wicketstuff-restannotations</artifactId>
+			<version>${wicket.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.wicketstuff</groupId>
+			<artifactId>wicketstuff-restannotations-json</artifactId>
+			<version>${wicket.version}</version>
 		</dependency>
 
 		<dependency>
