@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.ResourcePath;
+import org.wicketstuff.rest.annotations.parameters.HeaderParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.contenthandling.json.webserialdeserial.GsonWebSerialDeserial;
 import org.wicketstuff.rest.resource.AbstractRestResource;
@@ -64,8 +65,19 @@ public class SonosRestResource extends AbstractRestResource<GsonWebSerialDeseria
 	}
 
 	@MethodMapping(value = "/metadataStatus", httpMethod = HttpMethod.POST)
-	public void metadataStatusEvent(@RequestBody MetadataStatusEvent event) {
-		log.debug("metadataStatusEvent: trackName=\"{}\"", event.getCurrentItem().getTrack().getName());
+	public void metadataStatusEvent(@RequestBody MetadataStatusEvent event,
+			@HeaderParam("X-Sonos-Household-Id") String householdId, @HeaderParam("X-Sonos-Namespace") String namespace,
+			@HeaderParam("X-Sonos-Type") String type, @HeaderParam("X-Sonos-Target-Type") String targetType,
+			@HeaderParam("X-Sonos-Target-Value") String targetValue) {
+		
+		log.debug("metadataStatusEvent");
+		log.debug("householdId={}", householdId);
+		log.debug("namespace={}", namespace);
+		log.debug("type={}", type);
+		log.debug("targetType={}", targetType);
+		log.debug("targetValue={}", targetValue);
+
+		log.debug("trackName=\"{}\"", event.getCurrentItem().getTrack().getName());
 	}
 
 }
