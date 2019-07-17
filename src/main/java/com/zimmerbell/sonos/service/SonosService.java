@@ -39,8 +39,8 @@ public class SonosService implements Serializable {
 
 	private static final Logger log = LoggerFactory.getLogger(SonosService.class);
 
-	private static final String SONOS_CLIENT_ID;
-	private static final String SONOS_CLIENT_SECRET;
+	public static final String SONOS_CLIENT_ID;
+	public static final String SONOS_CLIENT_SECRET;
 	static {
 		Properties properties = new Properties();
 		try {
