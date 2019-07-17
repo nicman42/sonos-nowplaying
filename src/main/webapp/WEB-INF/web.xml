@@ -32,5 +32,11 @@
 		<filter-name>wicket</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	
+	<session-config>
+    	<!-- session timeout in minutes -->
+    	<!-- 7 days session timeout -->
+        <session-timeout>10080</session-timeout>
+    </session-config>
 
 </web-app>
