@@ -23,7 +23,7 @@ public abstract class AbstractBasePage extends WebPage {
 	protected void onInitialize() {
 		super.onInitialize();
 
-		getSonosService().login(getPageParameters());
+		getSonosService().login(getClass(), getPageParameters());
 	}
 
 	public SonosService getSonosService() {
