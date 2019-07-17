@@ -65,11 +65,6 @@ public class SonosRestResource extends AbstractRestResource<GsonWebSerialDeseria
 		}
 	}
 	
-	@MethodMapping(value = "/event", httpMethod = HttpMethod.POST, consumes=RestMimeTypes.TEXT_PLAIN)
-	public void test(@RequestBody String event) {
-		log.info("event: {}", event);
-	}
-
 	@MethodMapping(value = "/event/metadataStatus", httpMethod = HttpMethod.POST)
 	public void metadataStatusEvent(@RequestBody MetadataStatusEvent event,
 			@HeaderParam("X-Sonos-Household-Id") String householdId, @HeaderParam("X-Sonos-Namespace") String namespace,
