@@ -205,6 +205,10 @@ public class SonosService implements Serializable {
 	}
 
 	public JsonElement subscribe(Group group) throws IOException {
+		if (REDIRECT_URI.contains("localhost")) {
+			log.info("don't subscribe on localhost");
+			return null;
+		}
 		return apiRequestMethod(POST, "groups/" + group.getId() + "/playbackMetadata/subscription");
 	}
 
