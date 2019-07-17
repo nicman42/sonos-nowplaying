@@ -18,7 +18,8 @@ public class TestResource extends AbstractResource {
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 
 		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-			log.info("header: {}", headerNames.nextElement());
+			String headerName = headerNames.nextElement();
+			log.info("{}: {}", headerName, request.getHeader(headerName));
 		}
 		try {
 			String content = IOUtils.toString(request.getInputStream());
