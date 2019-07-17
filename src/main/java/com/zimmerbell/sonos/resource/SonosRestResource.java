@@ -24,7 +24,7 @@ import org.wicketstuff.restutils.http.HttpMethod;
 import com.zimmerbell.sonos.pojo.MetadataStatusEvent;
 import com.zimmerbell.sonos.service.SonosService;
 
-@ResourcePath("/event")
+@ResourcePath("/rest")
 public class SonosRestResource extends AbstractRestResource<GsonWebSerialDeserial> {
 	private static final Logger log = LoggerFactory.getLogger(SonosRestResource.class);
 
@@ -63,8 +63,13 @@ public class SonosRestResource extends AbstractRestResource<GsonWebSerialDeseria
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@MethodMapping(value = "/event", httpMethod = HttpMethod.POST)
+	public void test(@RequestBody String event) {
+		log.info("event: {}", event);
+	}
 
-	@MethodMapping(value = "/metadataStatus", httpMethod = HttpMethod.POST)
+	@MethodMapping(value = "/event/metadataStatus", httpMethod = HttpMethod.POST)
 	public void metadataStatusEvent(@RequestBody MetadataStatusEvent event,
 			@HeaderParam("X-Sonos-Household-Id") String householdId, @HeaderParam("X-Sonos-Namespace") String namespace,
 			@HeaderParam("X-Sonos-Type") String type, @HeaderParam("X-Sonos-Target-Type") String targetType,
