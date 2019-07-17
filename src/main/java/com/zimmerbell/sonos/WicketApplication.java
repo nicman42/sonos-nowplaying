@@ -1,7 +1,10 @@
 package com.zimmerbell.sonos;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.Response;
 import org.apache.wicket.settings.RequestCycleSettings.RenderStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +43,11 @@ public class WicketApplication extends WebApplication {
 		return StatusPage.class;
 	}
 	
-	
+	@Override
+	public Session newSession(Request request, Response response) {
+		log.debug("newSession");
+		
+		return super.newSession(request, response);
+	}
 
 }
