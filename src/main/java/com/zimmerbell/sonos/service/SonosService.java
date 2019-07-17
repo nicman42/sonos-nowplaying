@@ -23,6 +23,8 @@ import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wicketstuff.restutils.http.HttpMethod;
+import static org.wicketstuff.restutils.http.HttpMethod.*;
 
 import com.github.openjson.JSONObject;
 import com.google.gson.Gson;
@@ -142,6 +144,10 @@ public class SonosService implements Serializable {
 	}
 
 	private JsonElement apiRequest(String... path) throws IOException {
+		return apiRequestMethod(null, path);
+	}
+
+	private JsonElement apiRequestMethod(HttpMethod method, String... path) throws IOException {
 		StringBuilder url = new StringBuilder("https://api.ws.sonos.com/control/api/v1");
 		for (String s : path) {
 			if (s != null) {
@@ -151,6 +157,9 @@ public class SonosService implements Serializable {
 		log.info("url: {}", url);
 
 		HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
+		if (method != null) {
+			con.setRequestMethod(method.name());
+		}
 
 		con.setRequestProperty("Authorization", "Bearer " + getAccessToken());
 
@@ -191,6 +200,14 @@ public class SonosService implements Serializable {
 		return StreamSupport.stream(jsonArray.spliterator(), false) //
 				.map(e -> gson().fromJson(e, classOfT)) //
 				.collect(Collectors.toList());
+	}
+
+	public JsonElement subscribe(Group group) throws IOException {
+		return apiRequestMethod(POST, "groups/" + group.getId() + "/playbackMetadata/subscription");
+	}
+
+	public JsonElement unsubscribe(Group group) throws IOException {
+		return apiRequestMethod(DELETE, "groups/" + group.getId() + "/playbackMetadata/subscription");
 	}
 
 	private <T> T jsonToObject(JsonElement jsonElement, Class<T> classOfT) {
