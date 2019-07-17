@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.wicket.Page;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.flow.RedirectToUrlException;
@@ -51,6 +53,7 @@ public class SonosService implements Serializable {
 		SONOS_CLIENT_SECRET = properties.getProperty("sonos_client_secret");
 	}
 	private static final String PAGE_PARAM_AUTH_CODE = "code";
+	private static final String PAGE_PARAM_STATE = "state";
 	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN = "access_token";
 	public static final String SESSION_ATTRIBUTE_HOUSEHOLDS = "households";
 	public static final String SESSION_ATTRIBUTE_HOUSEHOLD = "household";
@@ -63,7 +66,7 @@ public class SonosService implements Serializable {
 	 * 
 	 * @return access token
 	 */
-	public void login(PageParameters pageParameters) {
+	public void login(Class<? extends Page> pageClass, PageParameters pageParameters) {
 		String redirectUri;
 		try {
 			redirectUri = URLEncoder.encode("http://localhost:8080/sonos", "UTF8");
@@ -75,6 +78,8 @@ public class SonosService implements Serializable {
 		String accessToken = getAccessToken();
 		if (authCode != null) {
 			log.info("authCode: {}", authCode);
+			pageParameters.remove(PAGE_PARAM_AUTH_CODE, authCode);
+			pageParameters.remove(PAGE_PARAM_STATE, pageParameters.get(PAGE_PARAM_STATE).toString());
 			try {
 				HttpURLConnection con = (HttpURLConnection) new URL("https://api.sonos.com/login/v3/oauth/access")
 						.openConnection();
@@ -108,6 +113,8 @@ public class SonosService implements Serializable {
 
 				final int expiresInSeconds = json.getInt("expires_in");
 				final String refreshToken = json.getString("refresh_token");
+
+				throw new RestartResponseException(pageClass, pageParameters);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
