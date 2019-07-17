@@ -1,6 +1,7 @@
 package com.zimmerbell.sonos.page;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -16,6 +17,7 @@ import com.zimmerbell.sonos.model.HouseholdModel;
 import com.zimmerbell.sonos.model.HouseholdsModel;
 import com.zimmerbell.sonos.model.TrackModel;
 import com.zimmerbell.sonos.pojo.Album;
+import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.Track;
 
@@ -46,19 +48,43 @@ public class StatusPage extends AbstractBasePage {
 			}
 		});
 
-		HouseholdsModel householdsModel = new HouseholdsModel();
-		HouseholdModel householdModel = new HouseholdModel();
-		if (householdModel.getObject() == null && householdsModel.getObject().size() == 1) {
-			householdModel.setObject(householdsModel.getObject().get(0));
-		}
-		form.add(new DropDownChoice<Household>("households", householdModel, householdsModel));
+		final HouseholdsModel householdsModel = new HouseholdsModel();
+		final HouseholdModel householdModel = new HouseholdModel();
+		WebMarkupContainer householdsRow = new WebMarkupContainer("households") {
+			@Override
+			protected void onConfigure() {
+				super.onConfigure();
+				if (householdsModel.getObject().size() == 1) {
+					if (householdModel.getObject() == null) {
+						householdModel.setObject(householdsModel.getObject().get(0));
+					}
+					setVisible(false);
+				} else {
+					setVisible(true);
+				}
+			}
+		};
+		form.add(householdsRow);
+		householdsRow.add(new DropDownChoice<>("households", householdModel, householdsModel));
 
 		GroupsModel groupsModel = new GroupsModel();
 		GroupModel groupModel = new GroupModel();
-		if (groupModel.getObject() == null && groupsModel.getObject().size() == 1) {
-			groupModel.setObject(groupsModel.getObject().get(0));
-		}
-		form.add(new DropDownChoice<>("groups", groupModel, groupsModel));
+		WebMarkupContainer groupsRow = new WebMarkupContainer("groups") {
+			@Override
+			protected void onConfigure() {
+				super.onConfigure();
+				if (groupsModel.getObject().size() == 1) {
+					if (groupModel.getObject() == null) {
+						groupModel.setObject(groupsModel.getObject().get(0));
+					}
+					setVisible(false);
+				} else {
+					setVisible(true);
+				}
+			}
+		};
+		form.add(groupsRow);
+		groupsRow.add(new DropDownChoice<>("groups", groupModel, groupsModel));
 
 		TrackModel trackModel = new TrackModel();
 		form.add(new Label("track", trackModel.map(Track::getName)));
