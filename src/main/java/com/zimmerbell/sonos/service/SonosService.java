@@ -90,7 +90,6 @@ public class SonosService implements Serializable {
 
 				final String clientIdAndSecret = Base64.getUrlEncoder()
 						.encodeToString((SONOS_CLIENT_ID + ":" + SONOS_CLIENT_SECRET).getBytes());
-				log.info("clientIdAndSecret: {}", clientIdAndSecret);
 				con.setRequestProperty("Authorization", "Basic " + clientIdAndSecret);
 
 				con.setRequestMethod("POST");
@@ -98,7 +97,6 @@ public class SonosService implements Serializable {
 				final String postParams = "grant_type=authorization_code&" //
 						+ "code=" + authCode + "&" //
 						+ "redirect_uri=" + redirectUri;
-				log.info("postParams: {}", postParams);
 				final byte[] postParamsBytes = postParams.getBytes(StandardCharsets.UTF_8);
 				con.setRequestProperty("Content-Length", Integer.toString(postParamsBytes.length));
 				con.setDoOutput(true);
