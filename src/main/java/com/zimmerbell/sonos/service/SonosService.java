@@ -41,6 +41,7 @@ public class SonosService implements Serializable {
 
 	private static final Logger log = LoggerFactory.getLogger(SonosService.class);
 
+	public static final String REDIRECT_URI;
 	public static final String SONOS_CLIENT_ID;
 	public static final String SONOS_CLIENT_SECRET;
 	static {
@@ -51,6 +52,7 @@ public class SonosService implements Serializable {
 			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
+		REDIRECT_URI = properties.getProperty("redirect_uri");
 		SONOS_CLIENT_ID = properties.getProperty("sonos_client_id");
 		SONOS_CLIENT_SECRET = properties.getProperty("sonos_client_secret");
 	}
@@ -71,7 +73,7 @@ public class SonosService implements Serializable {
 	public void login(Class<? extends Page> pageClass, PageParameters pageParameters) {
 		String redirectUri;
 		try {
-			redirectUri = URLEncoder.encode("http://localhost:8080/sonos", "UTF8");
+			redirectUri = URLEncoder.encode(REDIRECT_URI, "UTF8");
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
