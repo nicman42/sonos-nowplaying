@@ -1,5 +1,7 @@
 package com.zimmerbell.sonos.service;
 
+//import static org.wicketstuff.restutils.http.HttpMethod.*;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -23,8 +25,6 @@ import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wicketstuff.restutils.http.HttpMethod;
-import static org.wicketstuff.restutils.http.HttpMethod.*;
 
 import com.github.openjson.JSONObject;
 import com.google.gson.Gson;
@@ -147,7 +147,7 @@ public class SonosService implements Serializable {
 		return apiRequestMethod(null, path);
 	}
 
-	private JsonElement apiRequestMethod(HttpMethod method, String... path) throws IOException {
+	private JsonElement apiRequestMethod(String method, String... path) throws IOException {
 		StringBuilder url = new StringBuilder("https://api.ws.sonos.com/control/api/v1");
 		for (String s : path) {
 			if (s != null) {
@@ -158,7 +158,7 @@ public class SonosService implements Serializable {
 
 		HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
 		if (method != null) {
-			con.setRequestMethod(method.name());
+			con.setRequestMethod(method);
 		}
 
 		con.setRequestProperty("Authorization", "Bearer " + getAccessToken());
@@ -207,11 +207,11 @@ public class SonosService implements Serializable {
 			log.info("don't subscribe on localhost");
 			return null;
 		}
-		return apiRequestMethod(POST, "groups/" + group.getId() + "/playbackMetadata/subscription");
+		return apiRequestMethod("POST", "groups/" + group.getId() + "/playbackMetadata/subscription");
 	}
 
 	public JsonElement unsubscribe(Group group) throws IOException {
-		return apiRequestMethod(DELETE, "groups/" + group.getId() + "/playbackMetadata/subscription");
+		return apiRequestMethod("DELETE", "groups/" + group.getId() + "/playbackMetadata/subscription");
 	}
 
 	private <T> T jsonToObject(JsonElement jsonElement, Class<T> classOfT) {
