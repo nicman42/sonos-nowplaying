@@ -31,8 +31,31 @@ public class Group implements Id {
 		this.playbackState = playbackState;
 	}
 
+	public PlaybackState getPlaybackStateEnum() {
+		try {
+			return PlaybackState.valueOf(playbackState);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	public static enum PlaybackState {
+		PLAYBACK_STATE_PAUSED("paused");
+
+		private String title;
+
+		PlaybackState(String title) {
+			this.title = title;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
 	}
 }
