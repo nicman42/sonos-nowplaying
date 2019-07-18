@@ -96,7 +96,7 @@ public class SonosEventResource extends AbstractResource {
 			}
 
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
+			throw new WicketRuntimeException(e);
 		}
 	}
 
