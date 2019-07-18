@@ -1,8 +1,6 @@
 package com.zimmerbell.sonos.pojo;
 
-import java.io.Serializable;
-
-public class Group implements Serializable {
+public class Group implements Id {
 	private static final long serialVersionUID = 1L;
 
 	private String id;

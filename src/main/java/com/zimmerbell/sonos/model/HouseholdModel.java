@@ -9,7 +9,7 @@ public class HouseholdModel extends SessionModel<Household> {
 	private static final long serialVersionUID = 1L;
 
 	public HouseholdModel() {
-		super(SonosService.SESSION_ATTRIBUTE_HOUSEHOLD);
+		super(SonosService.SESSION_ATTRIBUTE_HOUSEHOLD, SonosService.SESSION_ATTRIBUTE_HOUSEHOLDS);
 	}
 
 	@Override

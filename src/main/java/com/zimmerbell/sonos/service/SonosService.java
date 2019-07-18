@@ -136,14 +136,6 @@ public class SonosService implements Serializable {
 
 	}
 
-	public Household getHousehold() {
-		return (Household) Session.get().getAttribute(SonosService.SESSION_ATTRIBUTE_HOUSEHOLD);
-	}
-
-	public Group getGroup() {
-		return (Group) Session.get().getAttribute(SonosService.SESSION_ATTRIBUTE_GROUP);
-	}
-
 	private JsonElement apiRequest(String... path) throws IOException {
 		return apiRequestMethod(null, path);
 	}

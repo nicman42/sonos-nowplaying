@@ -1,8 +1,6 @@
 package com.zimmerbell.sonos.pojo;
 
-import java.io.Serializable;
-
-public class Household implements Serializable {
+public class Household implements Id {
 	private static final long serialVersionUID = 1L;
 
 	private String id;
