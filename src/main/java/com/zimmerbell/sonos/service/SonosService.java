@@ -105,7 +105,7 @@ public class SonosService implements Serializable {
 					wr.write(postParamsBytes);
 				}
 
-				log.info("reponse message: {}", con.getResponseMessage());
+				log.info("response message: {}", con.getResponseMessage());
 
 				String response = IOUtils.toString(con.getInputStream(), "utf8" + "");
 				log.info("response: {}", response);
