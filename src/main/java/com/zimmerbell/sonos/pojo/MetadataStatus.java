@@ -2,7 +2,7 @@ package com.zimmerbell.sonos.pojo;
 
 import java.io.Serializable;
 
-public class MetadataStatusEvent implements Serializable {
+public class MetadataStatus implements Serializable {
 	private CurrentItem currentItem;
 
 	public CurrentItem getCurrentItem() {

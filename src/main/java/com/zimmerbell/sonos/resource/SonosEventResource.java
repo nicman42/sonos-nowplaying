@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.zimmerbell.sonos.pojo.MetadataStatusEvent;
+import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class SonosEventResource extends AbstractResource {
@@ -55,7 +55,7 @@ public class SonosEventResource extends AbstractResource {
 			log.info("content: {}", content);
 
 			if ("playbackMetadata".contentEquals(namespace) && "metadataStatus".equals(type)) {
-				onMetadataStatusEvent(gson().fromJson(content, MetadataStatusEvent.class));
+				onMetadataStatusEvent(gson().fromJson(content, MetadataStatus.class));
 			} else {
 				log.warn("unknown namespace '{}' or type '{}' ", namespace, type);
 			}
@@ -107,7 +107,7 @@ public class SonosEventResource extends AbstractResource {
 		return gson;
 	}
 
-	private void onMetadataStatusEvent(MetadataStatusEvent event) {
+	private void onMetadataStatusEvent(MetadataStatus event) {
 		log.debug("trackName=\"{}\"", event.getCurrentItem().getTrack().getName());
 	}
 

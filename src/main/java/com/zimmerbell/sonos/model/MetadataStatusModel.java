@@ -5,33 +5,33 @@ import java.io.IOException;
 import org.apache.wicket.model.IModel;
 
 import com.zimmerbell.sonos.pojo.Group;
-import com.zimmerbell.sonos.pojo.Track;
+import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.service.SonosService;
 
-public class TrackModel implements IModel<Track> {
+public class MetadataStatusModel implements IModel<MetadataStatus> {
 	private static final long serialVersionUID = 1L;
 
 	private SonosService sonosService = new SonosService();
-	private Track track;
+	private MetadataStatus metadataStatus;
 
 	@Override
-	public Track getObject() {
-		if (track == null) {
+	public MetadataStatus getObject() {
+		if (metadataStatus == null) {
 			Group group = sonosService.getGroup();
 			if (group != null) {
 				try {
-					track = sonosService.queryPlaybackMetadata(group);
+					metadataStatus = sonosService.queryPlaybackMetadataStatus(group);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
 			}
 		}
-		return track;
+		return metadataStatus;
 	}
 
 	@Override
 	public void detach() {
-		track = null;
+		metadataStatus = null;
 	}
 
 }
