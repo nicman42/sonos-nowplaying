@@ -14,10 +14,12 @@ public class MetadataStatusModel implements IModel<MetadataStatus> {
 	private SonosService sonosService = new SonosService();
 	private MetadataStatus metadataStatus;
 
+	private GroupModel groupModel = new GroupModel();
+
 	@Override
 	public MetadataStatus getObject() {
 		if (metadataStatus == null) {
-			Group group = sonosService.getGroup();
+			Group group = groupModel.getObject();
 			if (group != null) {
 				try {
 					metadataStatus = sonosService.queryPlaybackMetadataStatus(group);

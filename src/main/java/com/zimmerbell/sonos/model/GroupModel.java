@@ -12,13 +12,13 @@ public class GroupModel extends SessionModel<Group> {
 	private static final Logger log = LoggerFactory.getLogger(GroupModel.class);
 
 	public GroupModel() {
-		super(SonosService.SESSION_ATTRIBUTE_GROUP);
+		super(SonosService.SESSION_ATTRIBUTE_GROUP, SonosService.SESSION_ATTRIBUTE_GROUPS);
 	}
 
 	@Override
 	public void setObject(Group group) {
 		SonosService sonosService = new SonosService();
-		
+
 		Group oldGroup = getObject();
 		// unsubscribe old group
 		if (oldGroup != null) {
@@ -28,9 +28,9 @@ public class GroupModel extends SessionModel<Group> {
 				log.error(e.getMessage(), e);
 			}
 		}
-		
+
 		super.setObject(group);
-		
+
 		// subscribe new group
 		if (group != null) {
 			try {

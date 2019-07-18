@@ -1,5 +1,7 @@
 package com.zimmerbell.sonos.page;
 
+import java.util.Map;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -20,6 +22,7 @@ import com.zimmerbell.sonos.model.Item;
 import com.zimmerbell.sonos.model.MetadataStatusModel;
 import com.zimmerbell.sonos.pojo.Album;
 import com.zimmerbell.sonos.pojo.Container;
+import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.Service;
 import com.zimmerbell.sonos.pojo.Track;
@@ -68,7 +71,7 @@ public class StatusPage extends AbstractBasePage {
 			}
 		};
 		form.add(householdsRow);
-		householdsRow.add(new DropDownChoice<>("households", householdModel, householdsModel));
+		householdsRow.add(new DropDownChoice<Household>("households", householdModel, householdsModel));
 
 		GroupsModel groupsModel = new GroupsModel();
 		GroupModel groupModel = new GroupModel();
