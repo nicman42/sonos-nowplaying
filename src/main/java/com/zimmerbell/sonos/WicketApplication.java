@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.wicketstuff.rest.utils.mounting.PackageScanner;
 
 import com.zimmerbell.sonos.page.StatusPage;
-import com.zimmerbell.sonos.resource.TestResource;
+import com.zimmerbell.sonos.resource.SonosEventResource;
 
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
@@ -38,12 +38,15 @@ public class WicketApplication extends WebApplication {
 		// configure bootstrap
 		Bootstrap.install(this, new BootstrapSettings());
 
-		PackageScanner.scanPackage("com.zimmerbell.sonos.resource");
+		initMounts();
+	}
 
+	private void initMounts() {
+//		PackageScanner.scanPackage("com.zimmerbell.sonos.resource");
 		mountResource("/event", new ResourceReference("event") {
 			@Override
 			public IResource getResource() {
-				return new TestResource();
+				return new SonosEventResource();
 			}
 
 		});
