@@ -28,6 +28,8 @@ public class SonosEventResource extends AbstractResource {
 
 	@Override
 	protected ResourceResponse newResourceResponse(Attributes attributes) {
+		log.debug("url: {}", attributes.getRequest().getOriginalUrl());
+		
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
 
