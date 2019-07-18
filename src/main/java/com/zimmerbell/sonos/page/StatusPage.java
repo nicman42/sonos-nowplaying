@@ -10,6 +10,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wicketstuff.push.IPushEventContext;
+import org.wicketstuff.push.IPushEventHandler;
+import org.wicketstuff.push.IPushNode;
+import org.wicketstuff.push.cometd.CometdPushService;
 
 import com.zimmerbell.sonos.behavior.FormSubmitOnChangeBehavior;
 import com.zimmerbell.sonos.model.GroupModel;
@@ -26,6 +30,8 @@ import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.Service;
 import com.zimmerbell.sonos.pojo.Track;
+import com.zimmerbell.sonos.resource.SonosEventResource;
+import com.zimmerbell.sonos.resource.SonosEventResource.SonosEventListener;
 
 public class StatusPage extends AbstractBasePage {
 	private static final long serialVersionUID = 1L;
@@ -40,8 +46,28 @@ public class StatusPage extends AbstractBasePage {
 	protected void onInitialize() {
 		super.onInitialize();
 
-		Form form = new Form("form");
+		final Form form = new Form("form");
 		add(form);
+
+		final IPushNode<MetadataStatus> pushNode = CometdPushService.get().installNode(this,
+				new IPushEventHandler<MetadataStatus>() {
+					@Override
+					public void onEvent(AjaxRequestTarget target, MetadataStatus event, IPushNode<MetadataStatus> node,
+							IPushEventContext<MetadataStatus> ctx) {
+						target.add(form);
+					}
+				});
+		final SonosEventListener<MetadataStatus> sonosEventListener = new SonosEventListener<MetadataStatus>() {
+			@Override
+			public Class<MetadataStatus> getMessageClass() {
+				return MetadataStatus.class;
+			}
+
+			@Override
+			public void onMessage(MetadataStatus message) {
+				CometdPushService.get().publish(pushNode, message);
+			}
+		};
 
 		form.add(new FormSubmitOnChangeBehavior() {
 			private static final long serialVersionUID = 1L;
@@ -55,7 +81,23 @@ public class StatusPage extends AbstractBasePage {
 		});
 
 		final HouseholdsModel householdsModel = new HouseholdsModel();
-		final HouseholdModel householdModel = new HouseholdModel();
+		final HouseholdModel householdModel = new HouseholdModel() {
+			@Override
+			public void setObject(Household household) {
+				Household oldHousehold = getObject();
+				if (oldHousehold != null) {
+					SonosEventResource.removeSonosEventListener("playbackMetadata", "metadataStatus", household.getId(),
+							sonosEventListener);
+				}
+
+				super.setObject(household);
+
+				if (household != null) {
+					SonosEventResource.addSonosEventListener("playbackMetadata", "metadataStatus", household.getId(),
+							sonosEventListener);
+				}
+			}
+		};
 		WebMarkupContainer householdsRow = new WebMarkupContainer("households") {
 			@Override
 			protected void onConfigure() {

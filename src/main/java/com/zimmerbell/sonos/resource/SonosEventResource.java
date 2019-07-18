@@ -7,6 +7,11 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class SonosEventResource extends AbstractResource {
@@ -26,10 +30,36 @@ public class SonosEventResource extends AbstractResource {
 
 	private transient Gson gson;
 
+	private static Map<EventKey, Collection<SonosEventListener<?>>> listeners = Collections
+			.synchronizedMap(new HashMap<>());
+
+	public static void addSonosEventListener(String namespace, String type, String householdId,
+			SonosEventListener<?> listener) {
+		EventKey eventKey = new EventKey(namespace, type, householdId);
+		log.debug("addSonosEventListener: {}", eventKey);
+		listeners.computeIfAbsent(eventKey, k -> Collections.synchronizedSet(new HashSet<>())).add(listener);
+	}
+
+	public static void removeSonosEventListener(String namespace, String type, String householdId,
+			SonosEventListener<?> listener) {
+		EventKey eventKey = new EventKey(namespace, type, householdId);
+		log.debug("removeSonosEventListener: {}", eventKey);
+		getSonosEventListeners(eventKey).remove(listener);
+	}
+
+	private static Collection<SonosEventListener<?>> getSonosEventListeners(EventKey eventKey) {
+		return listeners.get(eventKey);
+	}
+
+	private <T> void processEvent(SonosEventListener<T> sonosEventListener, String content) {
+		T message = gson().fromJson(content, sonosEventListener.getMessageClass());
+		sonosEventListener.onMessage(message);
+	}
+
 	@Override
 	protected ResourceResponse newResourceResponse(Attributes attributes) {
 		log.debug("url: {}", attributes.getRequest().getOriginalUrl());
-		
+
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
 
@@ -53,12 +83,12 @@ public class SonosEventResource extends AbstractResource {
 		try {
 			String content = IOUtils.toString(request.getInputStream());
 			log.info("content: {}", content);
-
-			if ("playbackMetadata".contentEquals(namespace) && "metadataStatus".equals(type)) {
-				onMetadataStatusEvent(gson().fromJson(content, MetadataStatus.class));
-			} else {
-				log.warn("unknown namespace '{}' or type '{}' ", namespace, type);
+			EventKey eventKey = new EventKey(namespace, type, householdId);
+			log.debug("process listeners for {}", eventKey);
+			for (SonosEventListener<?> sonosEventListener : getSonosEventListeners(eventKey)) {
+				processEvent(sonosEventListener, content);
 			}
+
 		} catch (IOException e) {
 			throw new WicketRuntimeException(e);
 		}
@@ -107,8 +137,58 @@ public class SonosEventResource extends AbstractResource {
 		return gson;
 	}
 
-	private void onMetadataStatusEvent(MetadataStatus event) {
-		log.debug("trackName=\"{}\"", event.getCurrentItem().getTrack().getName());
+	public static interface SonosEventListener<T> {
+		public Class<T> getMessageClass();
+
+		public void onMessage(T message);
 	}
 
+	public static class EventKey {
+		private final String namespace;
+		private final String type;
+		private final String householdId;
+
+		private final String uniqueName;
+
+		public EventKey(String namespace, String type, String householdId) {
+			super();
+			this.namespace = namespace;
+			this.type = type;
+			this.householdId = householdId;
+
+			uniqueName = namespace + "-" + type + "-" + householdId;
+		}
+
+		public String getNamespace() {
+			return namespace;
+		}
+
+		public String getType() {
+			return type;
+		}
+
+		public String getHouseholdId() {
+			return householdId;
+		}
+
+		@Override
+		public int hashCode() {
+			return toString().hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof EventKey) {
+				return toString().equals(((EventKey) obj).toString());
+			}
+
+			return false;
+		}
+
+		@Override
+		public String toString() {
+			return uniqueName;
+		}
+
+	}
 }
