@@ -42,18 +42,6 @@
 			<artifactId>wicket-bootstrap-extensions</artifactId>
 			<version>3.0.0-M11</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.wicketstuff</groupId>
-			<artifactId>wicketstuff-restannotations</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.wicketstuff</groupId>
-			<artifactId>wicketstuff-restannotations-json</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
 		
 		<!-- servlet API -->
 		<dependency>

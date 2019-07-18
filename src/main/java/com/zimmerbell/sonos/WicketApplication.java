@@ -10,7 +10,6 @@ import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.settings.RequestCycleSettings.RenderStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wicketstuff.rest.utils.mounting.PackageScanner;
 
 import com.zimmerbell.sonos.page.StatusPage;
 import com.zimmerbell.sonos.resource.SonosEventResource;
@@ -42,7 +41,6 @@ public class WicketApplication extends WebApplication {
 	}
 
 	private void initMounts() {
-//		PackageScanner.scanPackage("com.zimmerbell.sonos.resource");
 		mountResource("/event", new ResourceReference("event") {
 			@Override
 			public IResource getResource() {
