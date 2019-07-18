@@ -2,27 +2,35 @@ package com.zimmerbell.sonos.pojo;
 
 import java.io.Serializable;
 
-public class MetadataStatus implements Serializable {
-	private CurrentItem currentItem;
+import com.zimmerbell.sonos.model.Item;
 
-	public CurrentItem getCurrentItem() {
+public class MetadataStatus implements Serializable {
+	private Container container;
+	private Item currentItem;
+	private Item nextItem;
+
+	public Container getContainer() {
+		return container;
+	}
+
+	public void setContainer(Container container) {
+		this.container = container;
+	}
+
+	public Item getCurrentItem() {
 		return currentItem;
 	}
 
-	public void setCurrentItem(CurrentItem currentItem) {
+	public void setCurrentItem(Item currentItem) {
 		this.currentItem = currentItem;
 	}
 
-	public static class CurrentItem implements Serializable {
-		private Track track;
-
-		public Track getTrack() {
-			return track;
-		}
-
-		public void setTrack(Track track) {
-			this.track = track;
-		}
-
+	public Item getNextItem() {
+		return nextItem;
 	}
+
+	public void setNextItem(Item nextItem) {
+		this.nextItem = nextItem;
+	}
+
 }
