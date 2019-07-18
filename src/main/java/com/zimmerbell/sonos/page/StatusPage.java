@@ -16,10 +16,12 @@ import com.zimmerbell.sonos.model.GroupModel;
 import com.zimmerbell.sonos.model.GroupsModel;
 import com.zimmerbell.sonos.model.HouseholdModel;
 import com.zimmerbell.sonos.model.HouseholdsModel;
+import com.zimmerbell.sonos.model.Item;
 import com.zimmerbell.sonos.model.MetadataStatusModel;
 import com.zimmerbell.sonos.pojo.Album;
+import com.zimmerbell.sonos.pojo.Container;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
-import com.zimmerbell.sonos.pojo.MetadataStatus.CurrentItem;
+import com.zimmerbell.sonos.pojo.Service;
 import com.zimmerbell.sonos.pojo.Track;
 
 public class StatusPage extends AbstractBasePage {
@@ -88,12 +90,14 @@ public class StatusPage extends AbstractBasePage {
 		groupsRow.add(new DropDownChoice<>("groups", groupModel, groupsModel));
 
 		MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
-		IModel<Track> trackModel = metadataStatusModel.map(MetadataStatus::getCurrentItem).map(CurrentItem::getTrack);
-		
+		IModel<Track> trackModel = metadataStatusModel.map(MetadataStatus::getCurrentItem).map(Item::getTrack);
+
 		form.add(new Label("track", trackModel.map(Track::getName)));
 		form.add(new Label("album", trackModel.map(Track::getAlbum).map(Album::getName)));
-
 		form.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)));
+		form.add(new Label("service", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getService)
+				.map(Service::getName)));
+		form.add(new Label("container", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getName)));
 
 		Track track = trackModel.getObject();
 		if (track != null) {
