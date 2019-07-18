@@ -1,7 +1,5 @@
 package com.zimmerbell.sonos.page;
 
-import java.util.Map;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,6 +20,8 @@ import com.zimmerbell.sonos.model.Item;
 import com.zimmerbell.sonos.model.MetadataStatusModel;
 import com.zimmerbell.sonos.pojo.Album;
 import com.zimmerbell.sonos.pojo.Container;
+import com.zimmerbell.sonos.pojo.Group;
+import com.zimmerbell.sonos.pojo.Group.PlaybackState;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.Service;
@@ -101,6 +101,7 @@ public class StatusPage extends AbstractBasePage {
 		form.add(new Label("service", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getService)
 				.map(Service::getName)));
 		form.add(new Label("container", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getName)));
+		form.add(new Label("state", groupModel.map(Group::getPlaybackStateEnum).map(PlaybackState::getTitle)));
 
 		Track track = trackModel.getObject();
 		if (track != null) {
