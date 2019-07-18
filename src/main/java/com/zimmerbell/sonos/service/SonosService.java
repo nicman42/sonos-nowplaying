@@ -34,6 +34,7 @@ import com.google.gson.JsonParser;
 import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
+import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.Track;
 
 public class SonosService implements Serializable {
@@ -189,11 +190,10 @@ public class SonosService implements Serializable {
 		return jsonToList(groups, Group.class);
 	}
 
-	public Track queryPlaybackMetadata(Group group) throws IOException {
-		JsonElement track = apiRequest("groups", group.getId(), "playbackMetadata").getAsJsonObject().get("currentItem")
-				.getAsJsonObject().get("track");
+	public MetadataStatus queryPlaybackMetadataStatus(Group group) throws IOException {
+		JsonElement json = apiRequest("groups", group.getId(), "playbackMetadata");
 
-		return jsonToObject(track, Track.class);
+		return jsonToObject(json, MetadataStatus.class);
 	}
 
 	private <T> List<T> jsonToList(JsonArray jsonArray, Class<T> classOfT) {
