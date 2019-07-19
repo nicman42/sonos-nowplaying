@@ -1,6 +1,5 @@
 package com.zimmerbell.sonos.page;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -31,13 +30,11 @@ import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.Service;
 import com.zimmerbell.sonos.pojo.Track;
 import com.zimmerbell.sonos.resource.SonosEventResource;
-import com.zimmerbell.sonos.resource.SonosEventResource.SonosEventListener;
 
 public class StatusPage extends AbstractBasePage {
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger log = LoggerFactory.getLogger(StatusPage.class);
-	private SonosEventListener<MetadataStatus> sonosEventListener;
 	private MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
 
 	public StatusPage(PageParameters parameters) {

@@ -183,7 +183,7 @@ public class SonosEventResource extends AbstractResource {
 		return gson;
 	}
 
-	private static class SonosEventListener<T> implements Serializable {
+	private abstract static class SonosEventListener<T> implements Serializable {
 		public final EventKey eventKey;
 		public final Class<T> eventClass;
 
@@ -192,9 +192,7 @@ public class SonosEventResource extends AbstractResource {
 			this.eventClass = eventClass;
 		}
 
-		public void onEvent(T event) {
-
-		}
+		public abstract void onEvent(T event);
 	}
 
 	private static class EventKey implements Serializable {
