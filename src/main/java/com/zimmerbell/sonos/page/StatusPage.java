@@ -116,8 +116,8 @@ public class StatusPage extends AbstractBasePage {
 			log.info("image url: {}", track.getImageUrl());
 		}
 
-		SonosEventResource.addSonosEventListener("playbackMetadata", "metadataStatus", MetadataStatus.class,
-				StatusPage.this, new IPushEventHandler<MetadataStatus>() {
+		SonosEventResource.addSonosEventListener(MetadataStatus.class, StatusPage.this,
+				new IPushEventHandler<MetadataStatus>() {
 					@Override
 					public void onEvent(AjaxRequestTarget target, MetadataStatus event, IPushNode<MetadataStatus> node,
 							IPushEventContext<MetadataStatus> ctx) {
