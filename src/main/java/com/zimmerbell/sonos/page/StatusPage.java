@@ -11,6 +11,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wicketstuff.push.IPushEventContext;
+import org.wicketstuff.push.IPushEventHandler;
 import org.wicketstuff.push.IPushNode;
 
 import com.zimmerbell.sonos.behavior.FormSubmitOnChangeBehavior;
@@ -30,7 +31,6 @@ import com.zimmerbell.sonos.pojo.Service;
 import com.zimmerbell.sonos.pojo.Track;
 import com.zimmerbell.sonos.resource.SonosEventResource;
 import com.zimmerbell.sonos.resource.SonosEventResource.SonosEventListener;
-import com.zimmerbell.sonos.resource.SonosEventResource.SonosEventHandler;
 
 public class StatusPage extends AbstractBasePage {
 	private static final long serialVersionUID = 1L;
@@ -47,19 +47,6 @@ public class StatusPage extends AbstractBasePage {
 
 		final Form<?> form = new Form<>("form");
 		add(form);
-
-		final SonosEventHandler<MetadataStatus> sonosEventHandler = new SonosEventHandler<MetadataStatus>() {
-			@Override
-			public Class<MetadataStatus> getMessageClass() {
-				return MetadataStatus.class;
-			}
-
-			@Override
-			public void onEvent(AjaxRequestTarget target, MetadataStatus event, IPushNode<MetadataStatus> node,
-					IPushEventContext<MetadataStatus> ctx) {
-				target.add(form);
-			}
-		};
 
 		form.add(new FormSubmitOnChangeBehavior() {
 			private static final long serialVersionUID = 1L;
@@ -79,15 +66,21 @@ public class StatusPage extends AbstractBasePage {
 			@Override
 			public void setObject(Household household) {
 				if (sonosEventListener != null) {
-					SonosEventResource.removeSonosEventListener("playbackMetadata", "metadataStatus", household.getId(),
-							sonosEventListener);
+					SonosEventResource.removeSonosEventListener(sonosEventListener);
 				}
 
 				super.setObject(household);
 
 				if (household != null) {
 					sonosEventListener = SonosEventResource.addSonosEventListener("playbackMetadata", "metadataStatus",
-							household.getId(), StatusPage.this, sonosEventHandler);
+							household.getId(), StatusPage.this, MetadataStatus.class,
+							new IPushEventHandler<MetadataStatus>() {
+								@Override
+								public void onEvent(AjaxRequestTarget target, MetadataStatus event,
+										IPushNode<MetadataStatus> node, IPushEventContext<MetadataStatus> ctx) {
+									target.add(form);
+								}
+							});
 				}
 			}
 		};
