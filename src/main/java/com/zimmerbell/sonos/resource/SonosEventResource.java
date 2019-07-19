@@ -34,7 +34,7 @@ import org.wicketstuff.push.timer.TimerPushService;
 import com.google.gson.Gson;
 import com.zimmerbell.sonos.model.HouseholdsModel;
 import com.zimmerbell.sonos.pojo.Household;
-import com.zimmerbell.sonos.pojo.IEvent;
+import com.zimmerbell.sonos.pojo.IEventType;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.service.SonosService;
 
@@ -46,9 +46,9 @@ public class SonosEventResource extends AbstractResource {
 	private static Map<EventKey, Collection<SonosEventListener<?>>> listeners = Collections
 			.synchronizedMap(new HashMap<>());
 
-	public static <T extends IEvent> Collection<SonosEventListener<?>> addSonosEventListener(Class<T> eventClass,
-			Component component, IPushEventHandler<T> sonosEventHandler) {
-		final IPushNode<T> pushNode = TimerPushService.get().installNode(component, sonosEventHandler);
+	public static <T extends IEventType> Collection<SonosEventListener<T>> addSonosEventListener(Class<T> eventClass,
+			Component component, IPushEventHandler<Event<T>> sonosEventHandler) {
+		final IPushNode<Event<T>> pushNode = TimerPushService.get().installNode(component, sonosEventHandler);
 
 		return addSonosEventListener(eventClass, (event) -> {
 			TimerPushService pushService = TimerPushService.get();
@@ -62,10 +62,10 @@ public class SonosEventResource extends AbstractResource {
 		});
 	}
 
-	public static <T extends IEvent> Collection<SonosEventListener<?>> addSonosEventListener(Class<T> eventClass,
-			SerializableFunction<T, Boolean> onEvent) {
+	public static <T extends IEventType> Collection<SonosEventListener<T>> addSonosEventListener(Class<T> eventClass,
+			SerializableFunction<Event<T>, Boolean> onEvent) {
 
-		List<SonosEventListener<?>> newSonosEventListeners = new LinkedList<>();
+		List<SonosEventListener<T>> newSonosEventListeners = new LinkedList<>();
 		for (Household household : new HouseholdsModel().getObject()) {
 			final EventKey eventKey = EventKey.forEventClass(eventClass, household.getId());
 			Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
@@ -73,7 +73,7 @@ public class SonosEventResource extends AbstractResource {
 
 			SonosEventListener<T> sonosEventListener = new SonosEventListener<T>(eventKey, eventClass) {
 				@Override
-				public void onEvent(T event) {
+				public void onEvent(Event<T> event) {
 					if (!onEvent.apply(event)) {
 						removeSonosEventListener(this);
 					}
@@ -95,8 +95,10 @@ public class SonosEventResource extends AbstractResource {
 		return listeners.computeIfAbsent(eventKey, k -> Collections.synchronizedSet(new HashSet<>()));
 	}
 
-	private <T> void processEvent(SonosEventListener<T> eventListener, String content) {
-		eventListener.onEvent(gson().fromJson(content, eventListener.eventClass));
+	private <T extends IEventType> void processEvent(SonosEventListener<T> eventListener, String householdId,
+			String targetType, String targetValue, String content) {
+		eventListener.onEvent(
+				new Event<T>(householdId, targetType, targetValue, gson().fromJson(content, eventListener.eventClass)));
 	}
 
 	@Override
@@ -132,7 +134,7 @@ public class SonosEventResource extends AbstractResource {
 			log.debug("process {} listeners for {}", sonosEventListeners.size(), eventKey);
 
 			for (SonosEventListener<?> sonosEventListener : new ArrayList<>(sonosEventListeners)) {
-				processEvent(sonosEventListener, content);
+				processEvent(sonosEventListener, householdId, targetType, targetValue, content);
 			}
 
 		} catch (IOException e) {
@@ -183,7 +185,7 @@ public class SonosEventResource extends AbstractResource {
 		return gson;
 	}
 
-	private abstract static class SonosEventListener<T> implements Serializable {
+	private abstract static class SonosEventListener<T extends IEventType> implements Serializable {
 		public final EventKey eventKey;
 		public final Class<T> eventClass;
 
@@ -192,13 +194,13 @@ public class SonosEventResource extends AbstractResource {
 			this.eventClass = eventClass;
 		}
 
-		public abstract void onEvent(T event);
+		public abstract void onEvent(Event<T> event);
 	}
 
 	private static class EventKey implements Serializable {
 		private final String uniqueName;
 
-		public static EventKey forEventClass(Class<? extends IEvent> eventClass, String householdId) {
+		public static EventKey forEventClass(Class<? extends IEventType> eventClass, String householdId) {
 			if (MetadataStatus.class.equals(eventClass)) {
 				return new EventKey("playbackMetadata", "metadataStatus", householdId);
 			} else {
@@ -227,6 +229,38 @@ public class SonosEventResource extends AbstractResource {
 		@Override
 		public String toString() {
 			return uniqueName;
+		}
+
+	}
+
+	public static class Event<T extends IEventType> {
+		private String householdId;
+		private String targetType;
+		private String targetValue;
+		private T object;
+
+		public Event(String householdId, String targetType, String targetValue, T object) {
+			super();
+			this.householdId = householdId;
+			this.targetType = targetType;
+			this.targetValue = targetValue;
+			this.object = object;
+		}
+
+		public String getHouseholdId() {
+			return householdId;
+		}
+
+		public String getTargetType() {
+			return targetType;
+		}
+
+		public String getTargetValue() {
+			return targetValue;
+		}
+
+		public T getObject() {
+			return object;
 		}
 
 	}

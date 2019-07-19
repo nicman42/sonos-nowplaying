@@ -2,7 +2,7 @@ package com.zimmerbell.sonos.pojo;
 
 import com.zimmerbell.sonos.model.Item;
 
-public class MetadataStatus implements IEvent {
+public class MetadataStatus implements IEventType {
 	private Container container;
 	private Item currentItem;
 	private Item nextItem;
