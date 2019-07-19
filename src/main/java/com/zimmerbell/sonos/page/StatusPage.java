@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.wicketstuff.push.IPushEventContext;
 import org.wicketstuff.push.IPushEventHandler;
 import org.wicketstuff.push.IPushNode;
-import org.wicketstuff.push.cometd.CometdPushService;
+import org.wicketstuff.push.timer.TimerPushService;
 
 import com.zimmerbell.sonos.behavior.FormSubmitOnChangeBehavior;
 import com.zimmerbell.sonos.model.GroupModel;
@@ -49,7 +49,7 @@ public class StatusPage extends AbstractBasePage {
 		final Form form = new Form("form");
 		add(form);
 
-		final IPushNode<MetadataStatus> pushNode = CometdPushService.get().installNode(this,
+		final IPushNode<MetadataStatus> pushNode = TimerPushService.get().installNode(this,
 				new IPushEventHandler<MetadataStatus>() {
 					@Override
 					public void onEvent(AjaxRequestTarget target, MetadataStatus event, IPushNode<MetadataStatus> node,
@@ -65,7 +65,7 @@ public class StatusPage extends AbstractBasePage {
 
 			@Override
 			public void onMessage(MetadataStatus message) {
-				CometdPushService.get().publish(pushNode, message);
+				TimerPushService.get().publish(pushNode, message);
 			}
 		};
 

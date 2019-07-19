@@ -45,8 +45,8 @@
 
 		<dependency>
 			<groupId>org.wicketstuff</groupId>
-			<artifactId>push-cometd</artifactId>
-			<version>1.5-RC5.1</version>
+			<artifactId>wicketstuff-push-timer</artifactId>
+			<version>${wicket.version}</version>
 		</dependency>
 
 		<!-- servlet API -->
