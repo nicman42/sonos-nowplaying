@@ -63,15 +63,7 @@ public class StatusPage extends AbstractBasePage {
 		});
 
 		final HouseholdsModel householdsModel = new HouseholdsModel();
-		final HouseholdModel householdModel = new HouseholdModel() {
-			@Override
-			public void setObject(Household household) {
-				super.setObject(household);
-				// update event listener if household changes
-				addSonosEventListener(household, form);
-			}
-		};
-		addSonosEventListener(householdModel.getObject(), form);
+		final HouseholdModel householdModel = new HouseholdModel();
 
 		WebMarkupContainer householdsRow = new WebMarkupContainer("households") {
 			@Override
@@ -123,24 +115,16 @@ public class StatusPage extends AbstractBasePage {
 		if (track != null) {
 			log.info("image url: {}", track.getImageUrl());
 		}
-	}
 
-	private void addSonosEventListener(Household household, Component component) {
-		if (sonosEventListener != null) {
-			SonosEventResource.removeSonosEventListener(sonosEventListener);
-		}
-
-		if (household != null) {
-			sonosEventListener = SonosEventResource.addSonosEventListener("playbackMetadata", "metadataStatus",
-					household.getId(), StatusPage.this, MetadataStatus.class, new IPushEventHandler<MetadataStatus>() {
-						@Override
-						public void onEvent(AjaxRequestTarget target, MetadataStatus event,
-								IPushNode<MetadataStatus> node, IPushEventContext<MetadataStatus> ctx) {
-							metadataStatusModel.setObject(event);
-							target.add(component);
-						}
-					});
-		}
+		SonosEventResource.addSonosEventListener("playbackMetadata", "metadataStatus", StatusPage.this,
+				MetadataStatus.class, new IPushEventHandler<MetadataStatus>() {
+					@Override
+					public void onEvent(AjaxRequestTarget target, MetadataStatus event, IPushNode<MetadataStatus> node,
+							IPushEventContext<MetadataStatus> ctx) {
+						metadataStatusModel.setObject(event);
+						target.add(form);
+					}
+				});
 	}
 
 }

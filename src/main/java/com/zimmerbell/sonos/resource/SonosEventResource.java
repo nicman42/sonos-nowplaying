@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,17 +22,17 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.WicketRuntimeException;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wicketstuff.push.IPushEventContext;
 import org.wicketstuff.push.IPushEventHandler;
 import org.wicketstuff.push.IPushNode;
 import org.wicketstuff.push.timer.TimerPushService;
 
 import com.google.gson.Gson;
+import com.zimmerbell.sonos.model.HouseholdsModel;
+import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class SonosEventResource extends AbstractResource {
@@ -40,17 +43,20 @@ public class SonosEventResource extends AbstractResource {
 	private static Map<EventKey, Collection<SonosEventListener<?>>> listeners = Collections
 			.synchronizedMap(new HashMap<>());
 
-	public static <T> SonosEventListener<T> addSonosEventListener(String namespace, String type, String householdId,
+	public static <T> Collection<SonosEventListener<?>> addSonosEventListener(String namespace, String type,
 			Component component, Class<T> eventClass, IPushEventHandler<T> sonosEventHandler) {
-		final EventKey eventKey = new EventKey(namespace, type, householdId);
-		log.debug("addSonosEventListener: {}", eventKey);
-
 		final IPushNode<T> pushNode = TimerPushService.get().installNode(component, sonosEventHandler);
 
-		SonosEventListener<T> sonosEventListener = new SonosEventListener<>(eventKey, pushNode, eventClass);
-		getSonosEventListeners(eventKey).add(sonosEventListener);
+		List<SonosEventListener<?>> sonosEventListeners = new LinkedList<>();
+		for (Household household : new HouseholdsModel().getObject()) {
+			final EventKey eventKey = new EventKey(namespace, type, household.getId());
+			log.debug("addSonosEventListener: {}", eventKey);
 
-		return sonosEventListener;
+			SonosEventListener<T> sonosEventListener = new SonosEventListener<>(eventKey, pushNode, eventClass);
+			sonosEventListeners.add(sonosEventListener);
+			getSonosEventListeners(eventKey).add(sonosEventListener);
+		}
+		return sonosEventListeners;
 	}
 
 	public static void removeSonosEventListener(SonosEventListener<?> listener) {
@@ -62,14 +68,15 @@ public class SonosEventResource extends AbstractResource {
 		return listeners.computeIfAbsent(eventKey, k -> Collections.synchronizedSet(new HashSet<>()));
 	}
 
-	private <T> void processEvent(SonosEventListener<T> eventListener, String content) {
+	private <T> boolean processEvent(SonosEventListener<T> eventListener, String content) {
 		TimerPushService pushService = TimerPushService.get();
 
-		if(pushService.isConnected(eventListener.pushNode)) {
+		if (pushService.isConnected(eventListener.pushNode)) {
 			T message = gson().fromJson(content, eventListener.eventClass);
 			pushService.publish(eventListener.pushNode, message);
-		}else {
-			removeSonosEventListener(eventListener);
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -104,8 +111,12 @@ public class SonosEventResource extends AbstractResource {
 
 			Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
 			log.debug("process {} listeners for {}", sonosEventListeners.size(), eventKey);
-			for (SonosEventListener<?> sonosEventListener : sonosEventListeners) {
-				processEvent(sonosEventListener, content);
+
+			for (Iterator<SonosEventListener<?>> it = sonosEventListeners.iterator(); it.hasNext();) {
+				SonosEventListener<?> sonosEventListener = it.next();
+				if (!processEvent(sonosEventListener, content)) {
+					it.remove();
+				}
 			}
 
 		} catch (IOException e) {
@@ -169,31 +180,12 @@ public class SonosEventResource extends AbstractResource {
 	}
 
 	public static class EventKey implements Serializable {
-		private final String namespace;
-		private final String type;
-		private final String householdId;
-
 		private final String uniqueName;
 
 		public EventKey(String namespace, String type, String householdId) {
 			super();
-			this.namespace = namespace;
-			this.type = type;
-			this.householdId = householdId;
 
 			uniqueName = namespace + "-" + type + "-" + householdId;
-		}
-
-		public String getNamespace() {
-			return namespace;
-		}
-
-		public String getType() {
-			return type;
-		}
-
-		public String getHouseholdId() {
-			return householdId;
 		}
 
 		@Override
