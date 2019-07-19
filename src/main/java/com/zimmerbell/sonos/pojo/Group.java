@@ -1,6 +1,6 @@
 package com.zimmerbell.sonos.pojo;
 
-public class Group implements Id {
+public class Group implements IId {
 	private static final long serialVersionUID = 1L;
 
 	private String id;

@@ -1,6 +1,6 @@
 package com.zimmerbell.sonos.pojo;
 
-public class Household implements Id {
+public class Household implements IId {
 	private static final long serialVersionUID = 1L;
 
 	private String id;

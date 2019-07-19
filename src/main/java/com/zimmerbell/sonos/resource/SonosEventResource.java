@@ -34,6 +34,8 @@ import org.wicketstuff.push.timer.TimerPushService;
 import com.google.gson.Gson;
 import com.zimmerbell.sonos.model.HouseholdsModel;
 import com.zimmerbell.sonos.pojo.Household;
+import com.zimmerbell.sonos.pojo.IEvent;
+import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class SonosEventResource extends AbstractResource {
@@ -44,11 +46,11 @@ public class SonosEventResource extends AbstractResource {
 	private static Map<EventKey, Collection<SonosEventListener<?>>> listeners = Collections
 			.synchronizedMap(new HashMap<>());
 
-	public static <T> Collection<SonosEventListener<?>> addSonosEventListener(String namespace, String type,
-			Class<T> eventClass, Component component, IPushEventHandler<T> sonosEventHandler) {
+	public static <T extends IEvent> Collection<SonosEventListener<?>> addSonosEventListener(Class<T> eventClass,
+			Component component, IPushEventHandler<T> sonosEventHandler) {
 		final IPushNode<T> pushNode = TimerPushService.get().installNode(component, sonosEventHandler);
 
-		return addSonosEventListener(namespace, type, eventClass, (event) -> {
+		return addSonosEventListener(eventClass, (event) -> {
 			TimerPushService pushService = TimerPushService.get();
 
 			if (pushService.isConnected(pushNode)) {
@@ -60,12 +62,12 @@ public class SonosEventResource extends AbstractResource {
 		});
 	}
 
-	public static <T> Collection<SonosEventListener<?>> addSonosEventListener(String namespace, String type,
-			Class<T> eventClass, SerializableFunction<T, Boolean> onEvent) {
+	public static <T extends IEvent> Collection<SonosEventListener<?>> addSonosEventListener(Class<T> eventClass,
+			SerializableFunction<T, Boolean> onEvent) {
 
 		List<SonosEventListener<?>> newSonosEventListeners = new LinkedList<>();
 		for (Household household : new HouseholdsModel().getObject()) {
-			final EventKey eventKey = new EventKey(namespace, type, household.getId());
+			final EventKey eventKey = EventKey.forEventClass(eventClass, household.getId());
 			Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
 			log.debug("addSonosEventListener: #{} {}", sonosEventListeners.size() + 1, eventKey);
 
@@ -198,9 +200,15 @@ public class SonosEventResource extends AbstractResource {
 	public static class EventKey implements Serializable {
 		private final String uniqueName;
 
-		public EventKey(String namespace, String type, String householdId) {
-			super();
+		public static EventKey forEventClass(Class<? extends IEvent> eventClass, String householdId) {
+			if (MetadataStatus.class.equals(eventClass)) {
+				return new EventKey("playbackMetadata", "metadataStatus", householdId);
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
 
+		private EventKey(String namespace, String type, String householdId) {
 			uniqueName = namespace + "-" + type + "-" + householdId;
 		}
 

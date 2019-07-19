@@ -1,10 +1,8 @@
 package com.zimmerbell.sonos.pojo;
 
-import java.io.Serializable;
-
 import com.zimmerbell.sonos.model.Item;
 
-public class MetadataStatus implements Serializable {
+public class MetadataStatus implements IEvent {
 	private Container container;
 	private Item currentItem;
 	private Item nextItem;
