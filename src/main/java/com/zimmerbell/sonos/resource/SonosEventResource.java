@@ -17,11 +17,17 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.wicket.Component;
 import org.apache.wicket.WicketRuntimeException;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.request.http.flow.AbortWithHttpErrorCodeException;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wicketstuff.push.IPushEventContext;
+import org.wicketstuff.push.IPushEventHandler;
+import org.wicketstuff.push.IPushNode;
+import org.wicketstuff.push.timer.TimerPushService;
 
 import com.google.gson.Gson;
 import com.zimmerbell.sonos.service.SonosService;
@@ -34,11 +40,18 @@ public class SonosEventResource extends AbstractResource {
 	private static Map<EventKey, Collection<SonosEventListener<?>>> listeners = Collections
 			.synchronizedMap(new HashMap<>());
 
-	public static void addSonosEventListener(String namespace, String type, String householdId,
-			SonosEventListener<?> listener) {
+	public static <T> SonosEventListener<T> addSonosEventListener(String namespace, String type, String householdId,
+			Component component, SonosEventHandler<T> sonosEventHandler) {
+		// the node for updating
+		final IPushNode<T> pushNode = TimerPushService.get().installNode(component, sonosEventHandler);
+
 		EventKey eventKey = new EventKey(namespace, type, householdId);
 		log.debug("addSonosEventListener: {}", eventKey);
-		getSonosEventListeners(eventKey).add(listener);
+
+		SonosEventListener<T> sonosEventListener = new SonosEventListener<>(sonosEventHandler, pushNode);
+		getSonosEventListeners(eventKey).add(sonosEventListener);
+
+		return sonosEventListener;
 	}
 
 	public static void removeSonosEventListener(String namespace, String type, String householdId,
@@ -52,9 +65,10 @@ public class SonosEventResource extends AbstractResource {
 		return listeners.computeIfAbsent(eventKey, k -> Collections.synchronizedSet(new HashSet<>()));
 	}
 
-	private <T> void processEvent(SonosEventListener<T> sonosEventListener, String content) {
-		T message = gson().fromJson(content, sonosEventListener.getMessageClass());
-		sonosEventListener.onMessage(message);
+	private <T> void processEvent(SonosEventListener<T> pushNode, String content) {
+		T message = gson().fromJson(content, pushNode.sonosEventHandler.getMessageClass());
+
+		TimerPushService.get().publish(pushNode.pushNode, message);
 	}
 
 	@Override
@@ -138,10 +152,23 @@ public class SonosEventResource extends AbstractResource {
 		return gson;
 	}
 
-	public static interface SonosEventListener<T> extends Serializable {
-		public Class<T> getMessageClass();
+	public abstract static class SonosEventHandler<T> implements IPushEventHandler<T>, Serializable {
+		@Override
+		public void onEvent(AjaxRequestTarget target, T event, IPushNode<T> node, IPushEventContext<T> ctx) {
 
-		public void onMessage(T message);
+		}
+
+		public abstract Class<T> getMessageClass();
+	}
+
+	public static class SonosEventListener<T> {
+		public final SonosEventHandler<T> sonosEventHandler;
+		public final IPushNode<T> pushNode;
+
+		public SonosEventListener(SonosEventHandler<T> sonosEventHandler, IPushNode<T> pushNode) {
+			this.sonosEventHandler = sonosEventHandler;
+			this.pushNode = pushNode;
+		}
 	}
 
 	public static class EventKey implements Serializable {
