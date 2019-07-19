@@ -38,7 +38,7 @@ public class MetadataStatusModel implements IModel<MetadataStatus> {
 
 	@Override
 	public void detach() {
-		metadataStatus = null;
+//		metadataStatus = null;
 	}
 
 }
