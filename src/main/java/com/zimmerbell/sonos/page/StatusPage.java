@@ -1,5 +1,6 @@
 package com.zimmerbell.sonos.page;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -36,6 +37,7 @@ public class StatusPage extends AbstractBasePage {
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger log = LoggerFactory.getLogger(StatusPage.class);
+	private SonosEventListener<MetadataStatus> sonosEventListener;
 
 	public StatusPage(PageParameters parameters) {
 		super(parameters);
@@ -61,29 +63,15 @@ public class StatusPage extends AbstractBasePage {
 
 		final HouseholdsModel householdsModel = new HouseholdsModel();
 		final HouseholdModel householdModel = new HouseholdModel() {
-			private SonosEventListener<MetadataStatus> sonosEventListener;
-
 			@Override
 			public void setObject(Household household) {
-				if (sonosEventListener != null) {
-					SonosEventResource.removeSonosEventListener(sonosEventListener);
-				}
-
 				super.setObject(household);
-
-				if (household != null) {
-					sonosEventListener = SonosEventResource.addSonosEventListener("playbackMetadata", "metadataStatus",
-							household.getId(), StatusPage.this, MetadataStatus.class,
-							new IPushEventHandler<MetadataStatus>() {
-								@Override
-								public void onEvent(AjaxRequestTarget target, MetadataStatus event,
-										IPushNode<MetadataStatus> node, IPushEventContext<MetadataStatus> ctx) {
-									target.add(form);
-								}
-							});
-				}
+				// update event listener if household changes
+				addSonosEventListener(household, form);
 			}
 		};
+		addSonosEventListener(householdModel.getObject(), form);
+
 		WebMarkupContainer householdsRow = new WebMarkupContainer("households") {
 			@Override
 			protected void onConfigure() {
@@ -134,6 +122,23 @@ public class StatusPage extends AbstractBasePage {
 		Track track = trackModel.getObject();
 		if (track != null) {
 			log.info("image url: {}", track.getImageUrl());
+		}
+	}
+
+	private void addSonosEventListener(Household household, Component component) {
+		if (sonosEventListener != null) {
+			SonosEventResource.removeSonosEventListener(sonosEventListener);
+		}
+
+		if (household != null) {
+			sonosEventListener = SonosEventResource.addSonosEventListener("playbackMetadata", "metadataStatus",
+					household.getId(), StatusPage.this, MetadataStatus.class, new IPushEventHandler<MetadataStatus>() {
+						@Override
+						public void onEvent(AjaxRequestTarget target, MetadataStatus event,
+								IPushNode<MetadataStatus> node, IPushEventContext<MetadataStatus> ctx) {
+							target.add(component);
+						}
+					});
 		}
 	}
 
