@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -37,7 +38,7 @@ public class SonosEventResource extends AbstractResource {
 			SonosEventListener<?> listener) {
 		EventKey eventKey = new EventKey(namespace, type, householdId);
 		log.debug("addSonosEventListener: {}", eventKey);
-		listeners.computeIfAbsent(eventKey, k -> Collections.synchronizedSet(new HashSet<>())).add(listener);
+		getSonosEventListeners(eventKey).add(listener);
 	}
 
 	public static void removeSonosEventListener(String namespace, String type, String householdId,
@@ -48,7 +49,7 @@ public class SonosEventResource extends AbstractResource {
 	}
 
 	private static Collection<SonosEventListener<?>> getSonosEventListeners(EventKey eventKey) {
-		return listeners.get(eventKey);
+		return listeners.computeIfAbsent(eventKey, k -> Collections.synchronizedSet(new HashSet<>()));
 	}
 
 	private <T> void processEvent(SonosEventListener<T> sonosEventListener, String content) {
@@ -137,13 +138,13 @@ public class SonosEventResource extends AbstractResource {
 		return gson;
 	}
 
-	public static interface SonosEventListener<T> {
+	public static interface SonosEventListener<T> extends Serializable {
 		public Class<T> getMessageClass();
 
 		public void onMessage(T message);
 	}
 
-	public static class EventKey {
+	public static class EventKey implements Serializable {
 		private final String namespace;
 		private final String type;
 		private final String householdId;

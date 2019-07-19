@@ -17,6 +17,8 @@ public class GroupModel extends SessionModel<Group> {
 
 	@Override
 	public void setObject(Group group) {
+		log.debug("group: {}", group == null ? null : group.getId());
+
 		SonosService sonosService = new SonosService();
 
 		Group oldGroup = getObject();
