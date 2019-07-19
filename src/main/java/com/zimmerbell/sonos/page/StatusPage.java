@@ -30,6 +30,7 @@ import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.Service;
 import com.zimmerbell.sonos.pojo.Track;
 import com.zimmerbell.sonos.resource.SonosEventResource;
+import com.zimmerbell.sonos.resource.SonosEventResource.Event;
 
 public class StatusPage extends AbstractBasePage {
 	private static final long serialVersionUID = 1L;
@@ -114,13 +115,14 @@ public class StatusPage extends AbstractBasePage {
 		}
 
 		SonosEventResource.addSonosEventListener(MetadataStatus.class, StatusPage.this,
-				new IPushEventHandler<MetadataStatus>() {
+				new IPushEventHandler<Event<MetadataStatus>>() {
 					@Override
-					public void onEvent(AjaxRequestTarget target, MetadataStatus event, IPushNode<MetadataStatus> node,
-							IPushEventContext<MetadataStatus> ctx) {
-						metadataStatusModel.setObject(event);
+					public void onEvent(AjaxRequestTarget target, Event<MetadataStatus> event,
+							IPushNode<Event<MetadataStatus>> node, IPushEventContext<Event<MetadataStatus>> ctx) {
+						metadataStatusModel.setObject(event.getObject());
 						target.add(form);
 					}
+
 				});
 	}
 
