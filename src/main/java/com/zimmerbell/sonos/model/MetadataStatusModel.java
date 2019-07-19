@@ -32,6 +32,11 @@ public class MetadataStatusModel implements IModel<MetadataStatus> {
 	}
 
 	@Override
+	public void setObject(MetadataStatus object) {
+		this.metadataStatus = object;
+	}
+
+	@Override
 	public void detach() {
 		metadataStatus = null;
 	}

@@ -38,6 +38,7 @@ public class StatusPage extends AbstractBasePage {
 
 	private static final Logger log = LoggerFactory.getLogger(StatusPage.class);
 	private SonosEventListener<MetadataStatus> sonosEventListener;
+	private MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
 
 	public StatusPage(PageParameters parameters) {
 		super(parameters);
@@ -108,7 +109,6 @@ public class StatusPage extends AbstractBasePage {
 		form.add(groupsRow);
 		groupsRow.add(new DropDownChoice<>("groups", groupModel, groupsModel));
 
-		MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
 		IModel<Track> trackModel = metadataStatusModel.map(MetadataStatus::getCurrentItem).map(Item::getTrack);
 
 		form.add(new Label("track", trackModel.map(Track::getName)));
@@ -136,6 +136,7 @@ public class StatusPage extends AbstractBasePage {
 						@Override
 						public void onEvent(AjaxRequestTarget target, MetadataStatus event,
 								IPushNode<MetadataStatus> node, IPushEventContext<MetadataStatus> ctx) {
+							metadataStatusModel.setObject(event);
 							target.add(component);
 						}
 					});
