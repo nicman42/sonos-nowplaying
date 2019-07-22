@@ -106,7 +106,7 @@ public class SonosEventResource extends AbstractResource {
 		log.debug("url: {}", attributes.getRequest().getOriginalUrl());
 
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
-//		verifySignature(request);
+		verifySignature(request);
 
 //		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
 //			String headerName = headerNames.nextElement();

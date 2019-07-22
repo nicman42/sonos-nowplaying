@@ -1,5 +1,7 @@
 package com.zimmerbell.sonos.page;
 
+import java.util.Optional;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -119,8 +121,12 @@ public class StatusPage extends AbstractBasePage {
 					@Override
 					public void onEvent(AjaxRequestTarget target, Event<MetadataStatus> event,
 							IPushNode<Event<MetadataStatus>> node, IPushEventContext<Event<MetadataStatus>> ctx) {
-						metadataStatusModel.setObject(event.getObject());
-						target.add(form);
+
+						if (event.getTargetValue()
+								.equals(Optional.ofNullable(groupModel.getObject()).map(Group::getId).orElse(null))) {
+							metadataStatusModel.setObject(event.getObject());
+							target.add(form);
+						}
 					}
 
 				});
