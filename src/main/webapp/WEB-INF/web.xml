@@ -38,7 +38,9 @@
 	<session-config>
     	<!-- session timeout in minutes -->
     	<!-- 7 days session timeout -->
-        <session-timeout>10080</session-timeout>
+<!--         <session-timeout>10080</session-timeout> -->
+
+		<session-timeout>1440</session-timeout>
     </session-config>
 
 </web-app>
