@@ -107,7 +107,7 @@ public class SonosService implements Serializable {
 
 				LOG.info("response message: {}", con.getResponseMessage());
 
-				String response = IOUtils.toString(con.getInputStream(), "utf8" + "");
+				String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8.name());
 				LOG.info("response: {}", response);
 
 				JSONObject json = new JSONObject(response);
