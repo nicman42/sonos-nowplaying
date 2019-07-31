@@ -33,7 +33,7 @@ public class AutomateCloudService {
 
 	public void sendMessage(String message) {
 		if (message == null) {
-			message = null;
+			message = "";
 		}
 		try {
 			HttpURLConnection con = (HttpURLConnection) new URL("https://llamalab.com/automate/cloud/message")
