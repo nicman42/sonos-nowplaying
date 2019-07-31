@@ -94,6 +94,7 @@ public class SonosService implements Serializable {
 			LOG.info("accessTokenExpirationDate: {}", accessTokenExpirationDate);
 			pageParameters.remove(PAGE_PARAM_AUTH_CODE, authCode);
 			pageParameters.remove(PAGE_PARAM_STATE, pageParameters.get(PAGE_PARAM_STATE).toString());
+			pageParameters.remove(PAGE_PARAM_FORCE_REFRESH_TOKEN, pageParameters.get(PAGE_PARAM_FORCE_REFRESH_TOKEN).toString());
 			try {
 				HttpURLConnection con = (HttpURLConnection) new URL("https://api.sonos.com/login/v3/oauth/access")
 						.openConnection();
