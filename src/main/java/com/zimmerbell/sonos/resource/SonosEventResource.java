@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,13 +34,27 @@ import org.wicketstuff.push.timer.TimerPushService;
 
 import com.google.gson.Gson;
 import com.zimmerbell.sonos.model.HouseholdsModel;
+import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.IEventType;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
+import com.zimmerbell.sonos.service.AutomateCloudService;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class SonosEventResource extends AbstractResource {
 	private static final Logger LOG = LoggerFactory.getLogger(SonosEventResource.class);
+
+	public static final String SONOS_HOUSEHOLD;
+	static {
+		Properties properties = new Properties();
+		try {
+			properties.load(AbstractBasePage.class.getResourceAsStream("/config.properties"));
+		} catch (IOException e) {
+			LOG.warn(e.getMessage());
+		}
+
+		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
+	}
 
 	private transient Gson gson;
 
@@ -116,12 +131,14 @@ public class SonosEventResource extends AbstractResource {
 		String namespace = request.getHeader("X-Sonos-Namespace");
 		String type = request.getHeader("X-Sonos-Type");
 		String householdId = request.getHeader("X-Sonos-Household-Id");
+		String groupId = request.getHeader("X-Sonos-Group-Id");
 		String targetType = request.getHeader("X-Sonos-Target-Type");
 		String targetValue = request.getHeader("X-Sonos-Target-Value");
 
 		LOG.debug("namespace={}", namespace);
 		LOG.debug("type={}", type);
 		LOG.debug("householdId={}", householdId);
+		LOG.debug("groupId={}", groupId);
 		LOG.debug("targetType={}", targetType);
 		LOG.debug("targetValue={}", targetValue);
 
@@ -132,6 +149,10 @@ public class SonosEventResource extends AbstractResource {
 
 			Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
 			LOG.debug("process {} listeners for {}", sonosEventListeners.size(), eventKey);
+
+			if (householdId.equals(SONOS_HOUSEHOLD)) {
+				new AutomateCloudService().sendMessage(groupId);
+			}
 
 			for (SonosEventListener<?> sonosEventListener : new ArrayList<>(sonosEventListeners)) {
 				processEvent(sonosEventListener, householdId, targetType, targetValue, content);
