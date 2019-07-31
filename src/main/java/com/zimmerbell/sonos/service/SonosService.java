@@ -86,7 +86,7 @@ public class SonosService implements Serializable {
 		LocalDateTime accessTokenExpirationDate = (LocalDateTime) WebSession.get()
 				.getAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE);
 		if (authCode != null || (accessTokenExpirationDate != null
-				&& accessTokenExpirationDate.isAfter(LocalDateTime.now().minusMinutes(1)))) {
+				&& accessTokenExpirationDate.isBefore(LocalDateTime.now().plusMinutes(1)))) {
 			LOG.info("authCode: {}", authCode);
 			LOG.info("accessTokenExpirationDate: {}", accessTokenExpirationDate);
 			pageParameters.remove(PAGE_PARAM_AUTH_CODE, authCode);
