@@ -58,6 +58,7 @@ public class SonosService implements Serializable {
 	}
 	private static final String PAGE_PARAM_AUTH_CODE = "code";
 	private static final String PAGE_PARAM_STATE = "state";
+	private static final String PAGE_PARAM_FORCE_REFRESH_TOKEN = "reauth";
 	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN = "access_token";
 	private static final String SESSION_ATTRIBUTE_REFRESH_TOKEN = "refresh_token";
 	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE = "access_token_expiration_date";
@@ -85,8 +86,10 @@ public class SonosService implements Serializable {
 		String accessToken = getAccessToken();
 		LocalDateTime accessTokenExpirationDate = (LocalDateTime) WebSession.get()
 				.getAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE);
-		if (authCode != null || (accessTokenExpirationDate != null
-				&& accessTokenExpirationDate.isBefore(LocalDateTime.now().plusMinutes(1)))) {
+		if (authCode != null //
+				|| (accessTokenExpirationDate != null
+						&& accessTokenExpirationDate.isBefore(LocalDateTime.now().plusMinutes(1))) //
+				|| pageParameters.get(PAGE_PARAM_FORCE_REFRESH_TOKEN).toString() != null) {
 			LOG.info("authCode: {}", authCode);
 			LOG.info("accessTokenExpirationDate: {}", accessTokenExpirationDate);
 			pageParameters.remove(PAGE_PARAM_AUTH_CODE, authCode);
