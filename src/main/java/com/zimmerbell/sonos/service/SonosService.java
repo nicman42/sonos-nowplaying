@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
@@ -19,7 +20,6 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseException;
-import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -35,7 +35,6 @@ import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
-import com.zimmerbell.sonos.pojo.Track;
 
 public class SonosService implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -60,6 +59,9 @@ public class SonosService implements Serializable {
 	private static final String PAGE_PARAM_AUTH_CODE = "code";
 	private static final String PAGE_PARAM_STATE = "state";
 	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN = "access_token";
+	private static final String SESSION_ATTRIBUTE_REFRESH_TOKEN = "refresh_token";
+	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE = "access_token_expiration_date";
+
 	public static final String SESSION_ATTRIBUTE_HOUSEHOLDS = "households";
 	public static final String SESSION_ATTRIBUTE_HOUSEHOLD = "household";
 	public static final String SESSION_ATTRIBUTE_GROUPS = "groups";
@@ -81,8 +83,12 @@ public class SonosService implements Serializable {
 
 		String authCode = pageParameters.get(PAGE_PARAM_AUTH_CODE).toString();
 		String accessToken = getAccessToken();
-		if (authCode != null) {
+		LocalDateTime accessTokenExpirationDate = (LocalDateTime) WebSession.get()
+				.getAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE);
+		if (authCode != null || (accessTokenExpirationDate != null
+				&& accessTokenExpirationDate.isAfter(LocalDateTime.now().minusMinutes(1)))) {
 			LOG.info("authCode: {}", authCode);
+			LOG.info("accessTokenExpirationDate: {}", accessTokenExpirationDate);
 			pageParameters.remove(PAGE_PARAM_AUTH_CODE, authCode);
 			pageParameters.remove(PAGE_PARAM_STATE, pageParameters.get(PAGE_PARAM_STATE).toString());
 			try {
@@ -95,9 +101,17 @@ public class SonosService implements Serializable {
 
 				con.setRequestMethod("POST");
 
-				final String postParams = "grant_type=authorization_code&" //
-						+ "code=" + authCode + "&" //
-						+ "redirect_uri=" + redirectUri;
+				final String postParams;
+				if (authCode != null) {
+					postParams = "grant_type=authorization_code&" //
+							+ "code=" + authCode + "&" //
+							+ "redirect_uri=" + redirectUri;
+				} else {
+					String refreshToken = (String) WebSession.get().getAttribute(SESSION_ATTRIBUTE_REFRESH_TOKEN);
+					LOG.info("refreshToken: {}", refreshToken);
+					postParams = "grant_type=refresh_token&" //
+							+ "refresh_token=" + refreshToken;
+				}
 				final byte[] postParamsBytes = postParams.getBytes(StandardCharsets.UTF_8);
 				con.setRequestProperty("Content-Length", Integer.toString(postParamsBytes.length));
 				con.setDoOutput(true);
@@ -111,11 +125,15 @@ public class SonosService implements Serializable {
 				LOG.info("response: {}", response);
 
 				JSONObject json = new JSONObject(response);
+
 				accessToken = json.getString("access_token");
 				WebSession.get().setAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN, accessToken);
 
-				final int expiresInSeconds = json.getInt("expires_in");
-				final String refreshToken = json.getString("refresh_token");
+				accessTokenExpirationDate = LocalDateTime.now().plusSeconds(json.getInt("expires_in"));
+				WebSession.get().setAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE,
+						accessTokenExpirationDate);
+
+				WebSession.get().setAttribute(SESSION_ATTRIBUTE_REFRESH_TOKEN, json.getString("refresh_token"));
 
 				throw new RestartResponseException(pageClass, pageParameters);
 			} catch (IOException e) {
