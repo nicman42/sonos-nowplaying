@@ -132,16 +132,14 @@ public class SonosEventResource extends AbstractResource {
 		String namespace = request.getHeader("X-Sonos-Namespace");
 		String type = request.getHeader("X-Sonos-Type");
 		String householdId = request.getHeader("X-Sonos-Household-Id");
-		String groupId = request.getHeader("X-Sonos-Group-Id");
 		String targetType = request.getHeader("X-Sonos-Target-Type");
 		String targetValue = request.getHeader("X-Sonos-Target-Value");
 
-		LOG.debug("namespace={}", namespace);
-		LOG.debug("type={}", type);
-		LOG.debug("householdId={}", householdId);
-		LOG.debug("groupId={}", groupId);
-		LOG.debug("targetType={}", targetType);
-		LOG.debug("targetValue={}", targetValue);
+//		LOG.debug("namespace={}", namespace);
+//		LOG.debug("type={}", type);
+//		LOG.debug("householdId={}", householdId);
+//		LOG.debug("targetType={}", targetType);
+//		LOG.debug("targetValue={}", targetValue);
 
 		try {
 			String content = IOUtils.toString(request.getInputStream());
@@ -152,7 +150,7 @@ public class SonosEventResource extends AbstractResource {
 			LOG.debug("process {} listeners for {}", sonosEventListeners.size(), eventKey);
 
 			if (householdId.equals(SONOS_HOUSEHOLD)) {
-				new AutomateCloudService().sendMessage(groupId);
+				new AutomateCloudService().sendMessage(targetValue);
 			}
 
 			for (SonosEventListener<?> sonosEventListener : new ArrayList<>(sonosEventListeners)) {
