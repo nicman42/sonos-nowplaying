@@ -8,7 +8,7 @@ import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class HouseholdModel extends SessionModel<Household> {
-	private static final Logger log = LoggerFactory.getLogger(HouseholdModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(HouseholdModel.class);
 
 	public HouseholdModel() {
 		super(SonosService.SESSION_ATTRIBUTE_HOUSEHOLD, SonosService.SESSION_ATTRIBUTE_HOUSEHOLDS);
@@ -16,7 +16,7 @@ public class HouseholdModel extends SessionModel<Household> {
 
 	@Override
 	public void setObject(Household household) {
-		log.debug("household: {}", household == null ? null : household.getId());
+		LOG.debug("household: {}", household == null ? null : household.getId());
 
 		super.setObject(household);
 

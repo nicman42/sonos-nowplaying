@@ -39,7 +39,7 @@ import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class SonosEventResource extends AbstractResource {
-	private static final Logger log = LoggerFactory.getLogger(SonosEventResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SonosEventResource.class);
 
 	private transient Gson gson;
 
@@ -69,7 +69,7 @@ public class SonosEventResource extends AbstractResource {
 		for (Household household : new HouseholdsModel().getObject()) {
 			final EventKey eventKey = EventKey.forEventClass(eventClass, household.getId());
 			Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
-			log.debug("addSonosEventListener: #{} {}", sonosEventListeners.size() + 1, eventKey);
+			LOG.debug("addSonosEventListener: #{} {}", sonosEventListeners.size() + 1, eventKey);
 
 			SonosEventListener<T> sonosEventListener = new SonosEventListener<T>(eventKey, eventClass) {
 				@Override
@@ -87,7 +87,7 @@ public class SonosEventResource extends AbstractResource {
 	}
 
 	public static void removeSonosEventListener(SonosEventListener<?> listener) {
-		log.debug("removeSonosEventListener: {}", listener.eventKey);
+		LOG.debug("removeSonosEventListener: {}", listener.eventKey);
 		getSonosEventListeners(listener.eventKey).remove(listener);
 	}
 
@@ -103,7 +103,7 @@ public class SonosEventResource extends AbstractResource {
 
 	@Override
 	protected ResourceResponse newResourceResponse(Attributes attributes) {
-		log.debug("url: {}", attributes.getRequest().getOriginalUrl());
+		LOG.debug("url: {}", attributes.getRequest().getOriginalUrl());
 
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
@@ -119,19 +119,19 @@ public class SonosEventResource extends AbstractResource {
 		String targetType = request.getHeader("X-Sonos-Target-Type");
 		String targetValue = request.getHeader("X-Sonos-Target-Value");
 
-		log.debug("namespace={}", namespace);
-		log.debug("type={}", type);
-		log.debug("householdId={}", householdId);
-		log.debug("targetType={}", targetType);
-		log.debug("targetValue={}", targetValue);
+		LOG.debug("namespace={}", namespace);
+		LOG.debug("type={}", type);
+		LOG.debug("householdId={}", householdId);
+		LOG.debug("targetType={}", targetType);
+		LOG.debug("targetValue={}", targetValue);
 
 		try {
 			String content = IOUtils.toString(request.getInputStream());
-			log.info("content: {}", content);
+			LOG.info("content: {}", content);
 			EventKey eventKey = new EventKey(namespace, type, householdId);
 
 			Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
-			log.debug("process {} listeners for {}", sonosEventListeners.size(), eventKey);
+			LOG.debug("process {} listeners for {}", sonosEventListeners.size(), eventKey);
 
 			for (SonosEventListener<?> sonosEventListener : new ArrayList<>(sonosEventListeners)) {
 				processEvent(sonosEventListener, householdId, targetType, targetValue, content);
@@ -158,7 +158,7 @@ public class SonosEventResource extends AbstractResource {
 			for (String headerName : new String[] { "X-Sonos-Event-Seq-Id", "X-Sonos-Namespace", "X-Sonos-Type",
 					"X-Sonos-Target-Type", "X-Sonos-Target-Value" }) {
 				String headerValue = request.getHeader(headerName);
-				log.info("{}: {}", headerName, headerValue);
+				LOG.info("{}: {}", headerName, headerValue);
 				messageDigest.update(headerValue.getBytes(UTF_8));
 			}
 			messageDigest.update(SonosService.SONOS_CLIENT_ID.getBytes(UTF_8));
@@ -169,7 +169,7 @@ public class SonosEventResource extends AbstractResource {
 			final String signature = request.getHeader("X-Sonos-Event-Signature");
 
 			if (!signature.equals(calculatedSignature)) {
-				log.info("invalid signature \"{}\"", signature);
+				LOG.info("invalid signature \"{}\"", signature);
 				throw new AbortWithHttpErrorCodeException(401, "invalid signature");
 			}
 

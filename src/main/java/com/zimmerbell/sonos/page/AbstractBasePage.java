@@ -9,7 +9,7 @@ import com.zimmerbell.sonos.service.SonosService;
 
 public abstract class AbstractBasePage extends WebPage {
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(AbstractBasePage.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractBasePage.class);
 
 	private transient SonosService sonosService;
 

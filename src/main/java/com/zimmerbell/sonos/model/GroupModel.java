@@ -9,7 +9,7 @@ import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class GroupModel extends SessionModel<Group> {
-	private static final Logger log = LoggerFactory.getLogger(GroupModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(GroupModel.class);
 
 	public GroupModel() {
 		super(SonosService.SESSION_ATTRIBUTE_GROUP, SonosService.SESSION_ATTRIBUTE_GROUPS);
@@ -17,7 +17,7 @@ public class GroupModel extends SessionModel<Group> {
 
 	@Override
 	public void setObject(Group group) {
-		log.debug("group: {}", group == null ? null : group.getId());
+		LOG.debug("group: {}", group == null ? null : group.getId());
 
 		SonosService sonosService = new SonosService();
 
@@ -27,7 +27,7 @@ public class GroupModel extends SessionModel<Group> {
 			try {
 				sonosService.unsubscribe(oldGroup);
 			} catch (IOException e) {
-				log.error(e.getMessage(), e);
+				LOG.error(e.getMessage(), e);
 			}
 		}
 
@@ -38,7 +38,7 @@ public class GroupModel extends SessionModel<Group> {
 			try {
 				sonosService.subscribe(group);
 			} catch (IOException e) {
-				log.error(e.getMessage(), e);
+				LOG.error(e.getMessage(), e);
 			}
 		}
 	}

@@ -37,7 +37,7 @@ import com.zimmerbell.sonos.resource.SonosEventResource.Event;
 public class StatusPage extends AbstractBasePage {
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger log = LoggerFactory.getLogger(StatusPage.class);
+	private static final Logger LOG = LoggerFactory.getLogger(StatusPage.class);
 	private MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
 
 	public StatusPage(PageParameters parameters) {
@@ -113,7 +113,7 @@ public class StatusPage extends AbstractBasePage {
 
 		Track track = trackModel.getObject();
 		if (track != null) {
-			log.info("image url: {}", track.getImageUrl());
+			LOG.info("image url: {}", track.getImageUrl());
 		}
 
 		SonosEventResource.addSonosEventListener(MetadataStatus.class, StatusPage.this,
