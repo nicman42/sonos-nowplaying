@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.zimmerbell.sonos.service.SonosService.CheckedSupplier;
 
 public abstract class SessionListModel<T extends Serializable> implements IModel<List<T>> {
-	private static final Logger log = LoggerFactory.getLogger(SessionListModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SessionListModel.class);
 
 	private String attribute;
 	private CheckedSupplier<Map<String, T>> supplier;
@@ -32,7 +32,7 @@ public abstract class SessionListModel<T extends Serializable> implements IModel
 		try {
 			obj = (Map<String, T>) Session.get().getAttribute(attribute);
 		} catch (ClassCastException e) {
-			log.warn(e.getMessage(), e);
+			LOG.warn(e.getMessage(), e);
 		}
 		if (obj == null) {
 			try {

@@ -40,7 +40,7 @@ import com.zimmerbell.sonos.pojo.Track;
 public class SonosService implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger log = LoggerFactory.getLogger(SonosService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SonosService.class);
 
 	public static final String REDIRECT_URI;
 	public static final String SONOS_CLIENT_ID;
@@ -50,7 +50,7 @@ public class SonosService implements Serializable {
 		try {
 			properties.load(AbstractBasePage.class.getResourceAsStream("/config.properties"));
 		} catch (IOException e) {
-			log.error(e.getMessage(), e);
+			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 		REDIRECT_URI = properties.getProperty("redirect_uri");
@@ -82,7 +82,7 @@ public class SonosService implements Serializable {
 		String authCode = pageParameters.get(PAGE_PARAM_AUTH_CODE).toString();
 		String accessToken = getAccessToken();
 		if (authCode != null) {
-			log.info("authCode: {}", authCode);
+			LOG.info("authCode: {}", authCode);
 			pageParameters.remove(PAGE_PARAM_AUTH_CODE, authCode);
 			pageParameters.remove(PAGE_PARAM_STATE, pageParameters.get(PAGE_PARAM_STATE).toString());
 			try {
@@ -105,10 +105,10 @@ public class SonosService implements Serializable {
 					wr.write(postParamsBytes);
 				}
 
-				log.info("response message: {}", con.getResponseMessage());
+				LOG.info("response message: {}", con.getResponseMessage());
 
 				String response = IOUtils.toString(con.getInputStream(), "utf8" + "");
-				log.info("response: {}", response);
+				LOG.info("response: {}", response);
 
 				JSONObject json = new JSONObject(response);
 				accessToken = json.getString("access_token");
@@ -123,7 +123,7 @@ public class SonosService implements Serializable {
 			}
 		}
 
-		log.info("accessToken: {}", accessToken);
+		LOG.info("accessToken: {}", accessToken);
 		if (accessToken == null) {
 			// redirect to sonos
 			throw new RedirectToUrlException("https://api.sonos.com/login/v3/oauth?" //
@@ -147,7 +147,7 @@ public class SonosService implements Serializable {
 				url.append("/").append(s);
 			}
 		}
-		log.info("url: {}", url);
+		LOG.info("url: {}", url);
 
 		HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
 		if (method != null) {
@@ -156,10 +156,10 @@ public class SonosService implements Serializable {
 
 		con.setRequestProperty("Authorization", "Bearer " + getAccessToken());
 
-		log.info("reponse message: {}", con.getResponseMessage());
+		LOG.info("reponse message: {}", con.getResponseMessage());
 
 		String response = IOUtils.toString(con.getInputStream(), "utf8" + "");
-		log.debug("response: {}", response);
+		LOG.debug("response: {}", response);
 
 		return new JsonParser().parse(response);
 	}
@@ -196,7 +196,7 @@ public class SonosService implements Serializable {
 
 	public JsonElement subscribe(Group group) throws IOException {
 		if (REDIRECT_URI.contains("localhost")) {
-			log.info("don't subscribe on localhost");
+			LOG.info("don't subscribe on localhost");
 			return null;
 		}
 		return apiRequestMethod("POST", "groups/" + group.getId() + "/playbackMetadata/subscription");

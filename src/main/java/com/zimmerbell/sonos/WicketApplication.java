@@ -20,10 +20,10 @@ import de.agilecoders.wicket.webjars.WicketWebjars;
 import de.agilecoders.wicket.webjars.settings.WebjarsSettings;
 
 public class WicketApplication extends WebApplication {
-	private static final Logger log = LoggerFactory.getLogger(WicketApplication.class);
+	private static final Logger LOG = LoggerFactory.getLogger(WicketApplication.class);
 
 	public WicketApplication() {
-		log.info("new WicketApplication");
+		LOG.info("new WicketApplication");
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class WicketApplication extends WebApplication {
 
 	@Override
 	public Session newSession(Request request, Response response) {
-		log.debug("newSession");
+		LOG.debug("newSession");
 
 		return super.newSession(request, response);
 	}
