@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import com.zimmerbell.sonos.page.AbstractBasePage;
 
-public class PushoverService {
-	private static final Logger LOG = LoggerFactory.getLogger(PushoverService.class);
+public class AutomateCloudService {
+	private static final Logger LOG = LoggerFactory.getLogger(AutomateCloudService.class);
 
-	public static final String PUSHOVER_TOKEN;
-	public static final String PUSHOVER_USER;
+	public static final String AUTOMATE_SECRET;
+	public static final String AUTOMATE_EMAIL;
 	static {
 		Properties properties = new Properties();
 		try {
@@ -27,19 +27,19 @@ public class PushoverService {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
-		PUSHOVER_TOKEN = properties.getProperty("pushover_token");
-		PUSHOVER_USER = properties.getProperty("pushover_user");
+		AUTOMATE_SECRET = properties.getProperty("automate_secret");
+		AUTOMATE_EMAIL = properties.getProperty("automate_email");
 	}
 
 	public void sendMessage(String message) {
 		try {
-			HttpURLConnection con = (HttpURLConnection) new URL("https://api.pushover.net/1/messages.json")
+			HttpURLConnection con = (HttpURLConnection) new URL("https://llamalab.com/automate/cloud/message")
 					.openConnection();
 
 			con.setRequestMethod("POST");
-			final String postParams = "token=" + PUSHOVER_TOKEN + "&" //
-					+ "user=" + PUSHOVER_USER + "&" //
-					+ "message=" + URLEncoder.encode(message, "utf8");
+			final String postParams = "secret=" + AUTOMATE_SECRET + "&" //
+					+ "to=" + AUTOMATE_EMAIL + "&" //
+					+ "payload=" + URLEncoder.encode(message, "utf8");
 			final byte[] postParamsBytes = postParams.getBytes(StandardCharsets.UTF_8);
 			con.setRequestProperty("Content-Length", Integer.toString(postParamsBytes.length));
 			con.setDoOutput(true);
