@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -123,10 +124,10 @@ public class SonosEventResource extends AbstractResource {
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
 
-//		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-//			String headerName = headerNames.nextElement();
-//			log.debug("{}: {}", headerName, request.getHeader(headerName));
-//		}
+		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+			String headerName = headerNames.nextElement();
+			LOG.debug("{}: {}", headerName, request.getHeader(headerName));
+		}
 
 		String namespace = request.getHeader("X-Sonos-Namespace");
 		String type = request.getHeader("X-Sonos-Type");
