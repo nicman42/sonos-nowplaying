@@ -39,12 +39,13 @@ import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.IEventType;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
+import com.zimmerbell.sonos.pojo.PlaybackStatus;
 import com.zimmerbell.sonos.service.AutomateCloudService;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class SonosEventResource extends AbstractResource {
 	private static final Logger LOG = LoggerFactory.getLogger(SonosEventResource.class);
-	
+
 	private static Map<EventKey, Collection<SonosEventListener<?>>> listeners = Collections
 			.synchronizedMap(new HashMap<>());
 
@@ -65,9 +66,15 @@ public class SonosEventResource extends AbstractResource {
 					new AutomateCloudService().sendMessage(event.getTargetValue());
 				}
 			});
+			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
+				@Override
+				public void onEvent(Event<PlaybackStatus> event) {
+					new AutomateCloudService().sendMessage(event.getTargetValue());
+				}
+			});
 		}
 	}
-	
+
 	private transient Gson gson;
 
 	public static <T extends IEventType> Collection<SonosEventListener<T>> addSonosEventListener(Class<T> eventClass,
@@ -231,6 +238,8 @@ public class SonosEventResource extends AbstractResource {
 		public static EventKey forEventClass(Class<? extends IEventType> eventClass, String householdId) {
 			if (MetadataStatus.class.equals(eventClass)) {
 				return new EventKey("playbackMetadata", "metadataStatus", householdId);
+			} else if (PlaybackStatus.class.equals(eventClass)) {
+				return new EventKey("playback", "playbackStatus", householdId);
 			} else {
 				throw new IllegalArgumentException();
 			}
