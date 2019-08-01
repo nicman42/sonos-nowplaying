@@ -44,6 +44,9 @@ import com.zimmerbell.sonos.service.SonosService;
 
 public class SonosEventResource extends AbstractResource {
 	private static final Logger LOG = LoggerFactory.getLogger(SonosEventResource.class);
+	
+	private static Map<EventKey, Collection<SonosEventListener<?>>> listeners = Collections
+			.synchronizedMap(new HashMap<>());
 
 	public static final String SONOS_HOUSEHOLD;
 	static {
@@ -64,11 +67,8 @@ public class SonosEventResource extends AbstractResource {
 			});
 		}
 	}
-
+	
 	private transient Gson gson;
-
-	private static Map<EventKey, Collection<SonosEventListener<?>>> listeners = Collections
-			.synchronizedMap(new HashMap<>());
 
 	public static <T extends IEventType> Collection<SonosEventListener<T>> addSonosEventListener(Class<T> eventClass,
 			Component component, IPushEventHandler<Event<T>> sonosEventHandler) {
