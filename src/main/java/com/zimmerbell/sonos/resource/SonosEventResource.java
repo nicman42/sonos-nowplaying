@@ -151,10 +151,10 @@ public class SonosEventResource extends AbstractResource {
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
 
-		StreamSupport
-				.stream(Spliterators.spliteratorUnknownSize(request.getHeaderNames().asIterator(), Spliterator.ORDERED),
-						false)
-				.distinct().forEach(headerName -> LOG.debug("{}: {}", headerName, request.getHeader(headerName)));
+		for(Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements(); ) {
+			String headerName = headerNames.nextElement();
+			LOG.debug("{}: {}", headerName, request.getHeader(headerName));
+		}
 
 		String namespace = request.getHeader("X-Sonos-Namespace");
 		String type = request.getHeader("X-Sonos-Type");
@@ -195,7 +195,6 @@ public class SonosEventResource extends AbstractResource {
 			for (String headerName : new String[] { "X-Sonos-Event-Seq-Id", "X-Sonos-Namespace", "X-Sonos-Type",
 					"X-Sonos-Target-Type", "X-Sonos-Target-Value" }) {
 				String headerValue = request.getHeader(headerName);
-				LOG.info("{}: {}", headerName, headerValue);
 				messageDigest.update(headerValue.getBytes(UTF_8));
 			}
 			messageDigest.update(SonosService.SONOS_CLIENT_ID.getBytes(UTF_8));
