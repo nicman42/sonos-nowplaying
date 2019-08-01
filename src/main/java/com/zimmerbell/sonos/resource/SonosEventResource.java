@@ -63,16 +63,16 @@ public class SonosEventResource extends AbstractResource {
 			addSonosEventListener(new SonosEventListener<MetadataStatus>(MetadataStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<MetadataStatus> event) {
-					new AutomateCloudService().sendMessage(event.getTargetValue(), "1");
+					new AutomateCloudService().sendMessage(event.getTargetValue() + " 1");
 				}
 			});
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
 					if (event.getObject().isPlaying()) {
-						new AutomateCloudService().sendMessage(event.getTargetValue(), "1");
+						new AutomateCloudService().sendMessage(event.getTargetValue() + " 1");
 					} else {
-						new AutomateCloudService().sendMessage(event.getTargetValue(), "0");
+						new AutomateCloudService().sendMessage(event.getTargetValue() + " 0");
 					}
 				}
 			});

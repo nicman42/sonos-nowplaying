@@ -31,7 +31,7 @@ public class AutomateCloudService {
 		AUTOMATE_EMAIL = properties.getProperty("automate_email");
 	}
 
-	public void sendMessage(String device, String payload) {
+	public void sendMessage(String payload) {
 		if (payload == null) {
 			payload = "";
 		}
@@ -42,7 +42,6 @@ public class AutomateCloudService {
 			con.setRequestMethod("POST");
 			final String postParams = "secret=" + AUTOMATE_SECRET + "&" //
 					+ "to=" + AUTOMATE_EMAIL + "&" //
-					+ (device == null ? "" : "device=" + URLEncoder.encode(device, StandardCharsets.UTF_8.name()) + "&") //
 					+ "payload=" + URLEncoder.encode(payload, StandardCharsets.UTF_8.name());
 			final byte[] postParamsBytes = postParams.getBytes(StandardCharsets.UTF_8);
 			con.setRequestProperty("Content-Length", Integer.toString(postParamsBytes.length));
