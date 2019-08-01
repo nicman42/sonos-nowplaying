@@ -6,6 +6,6 @@ public class AutomateCloudServiceTest {
 	public void testSendMessage() {
 		AutomateCloudService pushoverService = new AutomateCloudService();
 
-		pushoverService.sendMessage("test", "test");
+		pushoverService.sendMessage("test");
 	}
 }
