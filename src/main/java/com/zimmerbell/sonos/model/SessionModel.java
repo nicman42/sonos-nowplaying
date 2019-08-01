@@ -16,6 +16,9 @@ public abstract class SessionModel<T extends IId> implements IModel<T> {
 	public SessionModel(String objectAttribute, String mapAttribute) {
 		this.objectAttribute = objectAttribute;
 		this.mapAttribute = mapAttribute;
+
+		// initialize model (e.g. subscribe to REST API)
+		setObject(getObject());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -27,7 +30,7 @@ public abstract class SessionModel<T extends IId> implements IModel<T> {
 
 	@Override
 	public void setObject(T object) {
-		Session.get().setAttribute(objectAttribute, object.getId());
+		Session.get().setAttribute(objectAttribute, object == null ? null : object.getId());
 	}
 
 }
