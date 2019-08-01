@@ -53,7 +53,7 @@ public class AutomateCloudService {
 			LOG.info("response message: {}", con.getResponseMessage());
 
 			String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8.name());
-			LOG.info("response: {}", response);
+			LOG.trace("response: {}", response);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
