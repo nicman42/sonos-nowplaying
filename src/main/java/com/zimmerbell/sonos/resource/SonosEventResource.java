@@ -18,6 +18,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -147,10 +151,10 @@ public class SonosEventResource extends AbstractResource {
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
 
-		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-			String headerName = headerNames.nextElement();
-			LOG.debug("{}: {}", headerName, request.getHeader(headerName));
-		}
+		StreamSupport
+				.stream(Spliterators.spliteratorUnknownSize(request.getHeaderNames().asIterator(), Spliterator.ORDERED),
+						false)
+				.distinct().forEach(headerName -> LOG.debug("{}: {}", headerName, request.getHeader(headerName)));
 
 		String namespace = request.getHeader("X-Sonos-Namespace");
 		String type = request.getHeader("X-Sonos-Type");
