@@ -31,9 +31,9 @@ public class AutomateCloudService {
 		AUTOMATE_EMAIL = properties.getProperty("automate_email");
 	}
 
-	public void sendMessage(String message) {
-		if (message == null) {
-			message = "";
+	public void sendMessage(String device, String payload) {
+		if (payload == null) {
+			payload = "";
 		}
 		try {
 			HttpURLConnection con = (HttpURLConnection) new URL("https://llamalab.com/automate/cloud/message")
@@ -42,7 +42,8 @@ public class AutomateCloudService {
 			con.setRequestMethod("POST");
 			final String postParams = "secret=" + AUTOMATE_SECRET + "&" //
 					+ "to=" + AUTOMATE_EMAIL + "&" //
-					+ "payload=" + URLEncoder.encode(message, "utf8");
+					+ (device == null ? "" : "device=" + URLEncoder.encode(device, StandardCharsets.UTF_8.name()) + "&") //
+					+ "payload=" + URLEncoder.encode(payload, StandardCharsets.UTF_8.name());
 			final byte[] postParamsBytes = postParams.getBytes(StandardCharsets.UTF_8);
 			con.setRequestProperty("Content-Length", Integer.toString(postParamsBytes.length));
 			con.setDoOutput(true);
