@@ -5,9 +5,9 @@ import java.util.Map;
 import org.apache.wicket.Session;
 import org.apache.wicket.model.IModel;
 
-import com.zimmerbell.sonos.pojo.IId;
+import com.zimmerbell.sonos.pojo.Id;
 
-public abstract class SessionModel<T extends IId> implements IModel<T> {
+public abstract class SessionModel<T extends Id> implements IModel<T> {
 	private static final long serialVersionUID = 1L;
 
 	private String objectAttribute;
