@@ -170,7 +170,7 @@ public class SonosService implements Serializable {
 				url.append("/").append(s);
 			}
 		}
-		LOG.info("url: {}", url);
+		LOG.info("{}: {}", method == null ? "GET" : method, url);
 
 		HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
 		if (method != null) {
