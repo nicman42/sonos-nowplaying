@@ -31,7 +31,7 @@ public class AutomateCloudService {
 		AUTOMATE_EMAIL = properties.getProperty("automate_email");
 	}
 
-	public void sendMessage(String payload) {
+	public void sendMessage(String device, String payload) {
 		if (payload == null) {
 			payload = "";
 		}
@@ -40,6 +40,8 @@ public class AutomateCloudService {
 					.openConnection();
 
 			con.setRequestMethod("POST");
+			con.setRequestProperty("User-Agent", device);
+			
 			final String postParams = "secret=" + AUTOMATE_SECRET + "&" //
 					+ "to=" + AUTOMATE_EMAIL + "&" //
 					+ "payload=" + URLEncoder.encode(payload, StandardCharsets.UTF_8.name());
