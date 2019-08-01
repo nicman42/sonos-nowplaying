@@ -142,7 +142,7 @@ public class SonosEventResource extends AbstractResource {
 
 	@Override
 	protected ResourceResponse newResourceResponse(Attributes attributes) {
-		LOG.debug("url: {}", attributes.getRequest().getOriginalUrl());
+		LOG.debug("new event");
 
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
@@ -157,12 +157,6 @@ public class SonosEventResource extends AbstractResource {
 		String householdId = request.getHeader("X-Sonos-Household-Id");
 		String targetType = request.getHeader("X-Sonos-Target-Type");
 		String targetValue = request.getHeader("X-Sonos-Target-Value");
-
-//		LOG.debug("namespace={}", namespace);
-//		LOG.debug("type={}", type);
-//		LOG.debug("householdId={}", householdId);
-//		LOG.debug("targetType={}", targetType);
-//		LOG.debug("targetValue={}", targetValue);
 
 		try {
 			String content = IOUtils.toString(request.getInputStream());
