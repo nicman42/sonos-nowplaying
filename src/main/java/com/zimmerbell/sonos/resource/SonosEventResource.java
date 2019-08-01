@@ -55,6 +55,14 @@ public class SonosEventResource extends AbstractResource {
 		}
 
 		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
+		if (SONOS_HOUSEHOLD != null) {
+			addSonosEventListener(new SonosEventListener<MetadataStatus>(MetadataStatus.class, SONOS_HOUSEHOLD) {
+				@Override
+				public void onEvent(Event<MetadataStatus> event) {
+					new AutomateCloudService().sendMessage(event.getTargetValue());
+				}
+			});
+		}
 	}
 
 	private transient Gson gson;
@@ -83,11 +91,7 @@ public class SonosEventResource extends AbstractResource {
 
 		List<SonosEventListener<T>> newSonosEventListeners = new LinkedList<>();
 		for (Household household : new HouseholdsModel().getObject()) {
-			final EventKey eventKey = EventKey.forEventClass(eventClass, household.getId());
-			Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
-			LOG.debug("addSonosEventListener: #{} {}", sonosEventListeners.size() + 1, eventKey);
-
-			SonosEventListener<T> sonosEventListener = new SonosEventListener<T>(eventKey, eventClass) {
+			SonosEventListener<T> sonosEventListener = new SonosEventListener<T>(eventClass, household.getId()) {
 				@Override
 				public void onEvent(Event<T> event) {
 					if (!onEvent.apply(event)) {
@@ -95,11 +99,19 @@ public class SonosEventResource extends AbstractResource {
 					}
 				}
 			};
+			addSonosEventListener(sonosEventListener);
 			newSonosEventListeners.add(sonosEventListener);
-			sonosEventListeners.add(sonosEventListener);
+
 		}
 		return newSonosEventListeners;
 
+	}
+
+	private static void addSonosEventListener(SonosEventListener<?> sonosEventListener) {
+		Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(sonosEventListener.eventKey);
+		LOG.debug("addSonosEventListener: #{} {}", sonosEventListeners.size() + 1, sonosEventListener.eventKey);
+
+		sonosEventListeners.add(sonosEventListener);
 	}
 
 	public static void removeSonosEventListener(SonosEventListener<?> listener) {
@@ -148,10 +160,6 @@ public class SonosEventResource extends AbstractResource {
 
 			Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
 			LOG.debug("process {} listeners for {}", sonosEventListeners.size(), eventKey);
-
-			if (householdId.equals(SONOS_HOUSEHOLD)) {
-				new AutomateCloudService().sendMessage(targetValue);
-			}
 
 			for (SonosEventListener<?> sonosEventListener : new ArrayList<>(sonosEventListeners)) {
 				processEvent(sonosEventListener, householdId, targetType, targetValue, content);
@@ -209,8 +217,8 @@ public class SonosEventResource extends AbstractResource {
 		public final EventKey eventKey;
 		public final Class<T> eventClass;
 
-		public SonosEventListener(EventKey eventKey, Class<T> eventClass) {
-			this.eventKey = eventKey;
+		public SonosEventListener(Class<T> eventClass, String householdId) {
+			this.eventKey = EventKey.forEventClass(eventClass, householdId);
 			this.eventClass = eventClass;
 		}
 
