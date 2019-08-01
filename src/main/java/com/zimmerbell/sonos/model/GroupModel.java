@@ -23,7 +23,7 @@ public class GroupModel extends SessionModel<Group> {
 
 		Group oldGroup = getObject();
 		// unsubscribe old group
-		if (oldGroup != null) {
+		if (oldGroup != null && !oldGroup.equals(group)) {
 			try {
 				sonosService.unsubscribe(oldGroup);
 			} catch (IOException e) {
@@ -34,7 +34,7 @@ public class GroupModel extends SessionModel<Group> {
 		super.setObject(group);
 
 		// subscribe new group
-		if (group != null) {
+		if (group != null && !group.equals(oldGroup)) {
 			try {
 				sonosService.subscribe(group);
 			} catch (IOException e) {
