@@ -35,7 +35,7 @@ public class Group extends Id {
 		try {
 			return PlaybackState.valueOf(playbackState);
 		} catch (IllegalArgumentException e) {
-			return null;
+			return PlaybackState.UNDEFINED;
 		}
 	}
 
@@ -44,18 +44,4 @@ public class Group extends Id {
 		return getName();
 	}
 
-	public static enum PlaybackState {
-		PLAYBACK_STATE_PAUSED("paused");
-
-		private String title;
-
-		PlaybackState(String title) {
-			this.title = title;
-		}
-
-		public String getTitle() {
-			return title;
-		}
-
-	}
 }

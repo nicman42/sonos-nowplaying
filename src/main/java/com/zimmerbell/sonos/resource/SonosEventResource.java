@@ -69,7 +69,7 @@ public class SonosEventResource extends AbstractResource {
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
-					if (event.getObject().isPlaying()) {
+					if (event.getObject().getPlaybackStateEnum().isPlaying()) {
 						new AutomateCloudService().sendMessage(event.getTargetValue(), "1");
 					} else {
 						new AutomateCloudService().sendMessage(event.getTargetValue(), "0");
