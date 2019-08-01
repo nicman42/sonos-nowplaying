@@ -94,7 +94,8 @@ public class SonosService implements Serializable {
 			LOG.info("accessTokenExpirationDate: {}", accessTokenExpirationDate);
 			pageParameters.remove(PAGE_PARAM_AUTH_CODE, authCode);
 			pageParameters.remove(PAGE_PARAM_STATE, pageParameters.get(PAGE_PARAM_STATE).toString());
-			pageParameters.remove(PAGE_PARAM_FORCE_REFRESH_TOKEN, pageParameters.get(PAGE_PARAM_FORCE_REFRESH_TOKEN).toString());
+			pageParameters.remove(PAGE_PARAM_FORCE_REFRESH_TOKEN,
+					pageParameters.get(PAGE_PARAM_FORCE_REFRESH_TOKEN).toString());
 			try {
 				HttpURLConnection con = (HttpURLConnection) new URL("https://api.sonos.com/login/v3/oauth/access")
 						.openConnection();
@@ -216,16 +217,18 @@ public class SonosService implements Serializable {
 				.collect(Collectors.toList());
 	}
 
-	public JsonElement subscribe(Group group) throws IOException {
+	public void subscribe(Group group) throws IOException {
 		if (REDIRECT_URI.contains("localhost")) {
 			LOG.info("don't subscribe on localhost");
-			return null;
+			return;
 		}
-		return apiRequestMethod("POST", "groups/" + group.getId() + "/playbackMetadata/subscription");
+		apiRequestMethod("POST", "groups/" + group.getId() + "/playbackMetadata/subscription");
+		apiRequestMethod("POST", "groups/" + group.getId() + "/playback/subscription");
 	}
 
-	public JsonElement unsubscribe(Group group) throws IOException {
-		return apiRequestMethod("DELETE", "groups/" + group.getId() + "/playbackMetadata/subscription");
+	public void unsubscribe(Group group) throws IOException {
+		apiRequestMethod("DELETE", "groups/" + group.getId() + "/playbackMetadata/subscription");
+		apiRequestMethod("DELETE", "groups/" + group.getId() + "/playback/subscription");
 	}
 
 	private <T> T jsonToObject(JsonElement jsonElement, Class<T> classOfT) {
