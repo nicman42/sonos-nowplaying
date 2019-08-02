@@ -111,11 +111,6 @@ public class StatusPage extends AbstractBasePage {
 		form.add(new Label("container", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getName)));
 		form.add(new Label("state", groupModel.map(Group::getPlaybackStateEnum).map(PlaybackState::getTitle)));
 
-		Track track = trackModel.getObject();
-		if (track != null) {
-			LOG.info("image url: {}", track.getImageUrl());
-		}
-
 		SonosEventResource.addSonosEventListener(MetadataStatus.class, StatusPage.this,
 				new IPushEventHandler<Event<MetadataStatus>>() {
 					@Override
