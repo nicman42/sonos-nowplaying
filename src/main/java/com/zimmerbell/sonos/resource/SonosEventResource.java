@@ -73,11 +73,14 @@ public class SonosEventResource extends AbstractResource {
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
+					String payload;
 					if (event.getObject().getPlaybackStateEnum().isPlaying()) {
-						new AutomateCloudService().sendMessage(event.getTargetValue(), "1");
+						payload = "1";
 					} else {
-						new AutomateCloudService().sendMessage(event.getTargetValue(), "0");
+						payload = "0";
 					}
+					LOG.info("state: {}, payload: {}", event.getObject().getPlaybackState(), payload);
+					new AutomateCloudService().sendMessage(event.getTargetValue(), payload);
 				}
 			});
 		}
@@ -151,7 +154,7 @@ public class SonosEventResource extends AbstractResource {
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
 
-		for(Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements(); ) {
+		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
 			String headerName = headerNames.nextElement();
 			LOG.debug("{}: {}", headerName, request.getHeader(headerName));
 		}
