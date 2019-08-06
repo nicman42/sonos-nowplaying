@@ -55,6 +55,8 @@ public class SonosEventResource extends AbstractResource {
 
 	public static final String SONOS_HOUSEHOLD;
 	static {
+		LOG.debug("init (listeners.size()={})", listeners.size());
+		
 		Properties properties = new Properties();
 		try {
 			properties.load(AbstractBasePage.class.getResourceAsStream("/config.properties"));
@@ -64,12 +66,6 @@ public class SonosEventResource extends AbstractResource {
 
 		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
 		if (SONOS_HOUSEHOLD != null) {
-//			addSonosEventListener(new SonosEventListener<MetadataStatus>(MetadataStatus.class, SONOS_HOUSEHOLD) {
-//				@Override
-//				public void onEvent(Event<MetadataStatus> event) {
-//					new AutomateCloudService().sendMessage(event.getTargetValue(), "1");
-//				}
-//			});
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
