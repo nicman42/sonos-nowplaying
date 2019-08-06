@@ -1,0 +1,6 @@
+sonos_client_id=
+sonos_client_secret=
+redirect_uri=http://localhost:8080/sonos
+automate_email=
+automate_secret=
+sonos_household=
