@@ -64,19 +64,30 @@ public class SonosEventResource extends AbstractResource {
 
 		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
 		if (SONOS_HOUSEHOLD != null) {
-			addSonosEventListener(new SonosEventListener<MetadataStatus>(MetadataStatus.class, SONOS_HOUSEHOLD) {
-				@Override
-				public void onEvent(Event<MetadataStatus> event) {
-					new AutomateCloudService().sendMessage(event.getTargetValue(), "1");
-				}
-			});
+//			addSonosEventListener(new SonosEventListener<MetadataStatus>(MetadataStatus.class, SONOS_HOUSEHOLD) {
+//				@Override
+//				public void onEvent(Event<MetadataStatus> event) {
+//					new AutomateCloudService().sendMessage(event.getTargetValue(), "1");
+//				}
+//			});
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
-					if (event.getObject().getPlaybackStateEnum().isPlaying()) {
-						new AutomateCloudService().sendMessage(event.getTargetValue(), "1");
-					} else {
-						new AutomateCloudService().sendMessage(event.getTargetValue(), "0");
+					String payload = null;
+					switch (event.getObject().getPlaybackStateEnum()) {
+					case PLAYBACK_STATE_BUFFERING:
+						payload = "1";
+						break;
+					case PLAYBACK_STATE_PAUSED:
+					case PLAYBACK_STATE_IDLE:
+						payload = "0";
+						break;
+					default:
+						break;
+					}
+					if (payload != null) {
+						LOG.info("state: {}, payload: {}", event.getObject().getPlaybackState(), payload);
+						new AutomateCloudService().sendMessage(event.getTargetValue(), payload);
 					}
 				}
 			});
@@ -151,7 +162,7 @@ public class SonosEventResource extends AbstractResource {
 		HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
 
-		for(Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements(); ) {
+		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
 			String headerName = headerNames.nextElement();
 			LOG.debug("{}: {}", headerName, request.getHeader(headerName));
 		}
