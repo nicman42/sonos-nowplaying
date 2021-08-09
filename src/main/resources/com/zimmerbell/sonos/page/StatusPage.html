@@ -9,7 +9,7 @@
 <body>
 	<wicket:extend>
 		<form wicket:id="form">
-			<div class="form-row">
+			<div wicket:id="config" class="form-row">
 				<div wicket:id="households" class="form-group col-md-6">
 					<label>Household</label> <select wicket:id="households"
 						class="form-control"></select>
@@ -19,8 +19,8 @@
 						class="form-control"></select>
 				</div>
 			</div>
-
-			<div class="text-center">
+			
+			<div wicket:id="status" class="text-center">
 				<h1 class="display-4" wicket:id="track"></h1>
 				<p class="lead" wicket:id="album"></p>
 				<img wicket:id="image" class="rounded" style="max-width: 100%;" onerror="this.style.display = 'none';"/>
