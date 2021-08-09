@@ -2,43 +2,32 @@ package com.zimmerbell.sonos.model;
 
 import java.io.IOException;
 
-import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.service.SonosService;
 
-public class MetadataStatusModel implements IModel<MetadataStatus> {
+public class MetadataStatusModel extends LoadableDetachableModel<MetadataStatus> {
 	private static final long serialVersionUID = 1L;
 
-	private SonosService sonosService = new SonosService();
-	private MetadataStatus metadataStatus;
-
-	private GroupModel groupModel = new GroupModel();
+	private final SonosService sonosService = new SonosService();
+	private final GroupModel groupModel = new GroupModel();
 
 	@Override
-	public MetadataStatus getObject() {
-		if (metadataStatus == null) {
-			Group group = groupModel.getObject();
-			if (group != null) {
-				try {
-					metadataStatus = sonosService.queryPlaybackMetadataStatus(group);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
+	protected MetadataStatus load() {
+		MetadataStatus metadataStatus = null;
+
+		final Group group = groupModel.getObject();
+		if (group != null) {
+			try {
+				metadataStatus = sonosService.queryPlaybackMetadataStatus(group);
+			} catch (final IOException e) {
+				throw new RuntimeException(e);
 			}
 		}
+
 		return metadataStatus;
-	}
-
-	@Override
-	public void setObject(MetadataStatus object) {
-		this.metadataStatus = object;
-	}
-
-	@Override
-	public void detach() {
-//		metadataStatus = null;
 	}
 
 }
