@@ -15,13 +15,8 @@ public class HouseholdModel extends SessionModel<Household> {
 	}
 
 	@Override
-	public void setObject(Household household) {
-		LOG.debug("household: {}", household == null ? null : household.getId());
-
-		super.setObject(household);
-
+	protected void onObjectChanged(Household oldObject, Household object) {
 		Session.get().removeAttribute(SonosService.SESSION_ATTRIBUTE_GROUP);
 		Session.get().removeAttribute(SonosService.SESSION_ATTRIBUTE_GROUPS);
 	}
-
 }

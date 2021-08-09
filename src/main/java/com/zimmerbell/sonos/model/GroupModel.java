@@ -16,28 +16,23 @@ public class GroupModel extends SessionModel<Group> {
 	}
 
 	@Override
-	public void setObject(Group group) {
-		LOG.debug("group: {}", group == null ? null : group.getId());
+	protected void onObjectChanged(Group oldGroup, Group group) {
+		final SonosService sonosService = new SonosService();
 
-		SonosService sonosService = new SonosService();
-
-		Group oldGroup = getObject();
 		// unsubscribe old group
-		if (oldGroup != null && !oldGroup.equals(group)) {
+		if (oldGroup != null) {
 			try {
 				sonosService.unsubscribe(oldGroup);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				LOG.error(e.getMessage(), e);
 			}
 		}
 
-		super.setObject(group);
-
 		// subscribe new group
-		if (group != null && !group.equals(oldGroup)) {
+		if (group != null) {
 			try {
 				sonosService.subscribe(group);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				LOG.error(e.getMessage(), e);
 			}
 		}
