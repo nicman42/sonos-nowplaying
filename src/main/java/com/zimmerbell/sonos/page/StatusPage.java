@@ -38,7 +38,9 @@ public class StatusPage extends AbstractBasePage {
 	private static final long serialVersionUID = 1L;
 
 	private static final Logger LOG = LoggerFactory.getLogger(StatusPage.class);
-	private MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
+	public static final String PARAM_CONFIG = "config";
+
+	private final MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
 
 	public StatusPage(PageParameters parameters) {
 		super(parameters);
@@ -48,8 +50,26 @@ public class StatusPage extends AbstractBasePage {
 	protected void onInitialize() {
 		super.onInitialize();
 
-		final Form<?> form = new Form<>("form");
+		final HouseholdsModel householdsModel = new HouseholdsModel();
+		final HouseholdModel householdModel = new HouseholdModel();
+		final GroupsModel groupsModel = new GroupsModel();
+		final GroupModel groupModel = new GroupModel();
+
+		final WebMarkupContainer status = new WebMarkupContainer("status");
+		final WebMarkupContainer config = new WebMarkupContainer("config");
+
+		final Form<?> form = new Form<>("form") {
+			@Override
+			protected void onConfigure() {
+				super.onConfigure();
+
+				config.setVisible(groupModel.getObject() == null || !getPageParameters().get(PARAM_CONFIG).isNull());
+				status.setVisible(groupModel.getObject() != null);
+			}
+		};
 		add(form);
+		form.add(config);
+		form.add(status);
 
 		form.add(new FormSubmitOnChangeBehavior() {
 			private static final long serialVersionUID = 1L;
@@ -62,10 +82,7 @@ public class StatusPage extends AbstractBasePage {
 			}
 		});
 
-		final HouseholdsModel householdsModel = new HouseholdsModel();
-		final HouseholdModel householdModel = new HouseholdModel();
-
-		WebMarkupContainer householdsRow = new WebMarkupContainer("households") {
+		final WebMarkupContainer householdsRow = new WebMarkupContainer("households") {
 			@Override
 			protected void onConfigure() {
 				super.onConfigure();
@@ -79,12 +96,10 @@ public class StatusPage extends AbstractBasePage {
 				}
 			}
 		};
-		form.add(householdsRow);
+		config.add(householdsRow);
 		householdsRow.add(new DropDownChoice<Household>("households", householdModel, householdsModel));
 
-		GroupsModel groupsModel = new GroupsModel();
-		GroupModel groupModel = new GroupModel();
-		WebMarkupContainer groupsRow = new WebMarkupContainer("groups") {
+		final WebMarkupContainer groupsRow = new WebMarkupContainer("groups") {
 			@Override
 			protected void onConfigure() {
 				super.onConfigure();
@@ -98,18 +113,19 @@ public class StatusPage extends AbstractBasePage {
 				}
 			}
 		};
-		form.add(groupsRow);
+		config.add(groupsRow);
 		groupsRow.add(new DropDownChoice<>("groups", groupModel, groupsModel));
 
-		IModel<Track> trackModel = metadataStatusModel.map(MetadataStatus::getCurrentItem).map(Item::getTrack);
+		final IModel<Track> trackModel = metadataStatusModel.map(MetadataStatus::getCurrentItem).map(Item::getTrack);
 
-		form.add(new Label("track", trackModel.map(Track::getName)));
-		form.add(new Label("album", trackModel.map(Track::getAlbum).map(Album::getName)));
-		form.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)));
-		form.add(new Label("service", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getService)
+		status.add(new Label("track", trackModel.map(Track::getName)));
+		status.add(new Label("album", trackModel.map(Track::getAlbum).map(Album::getName)));
+		status.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)));
+		status.add(new Label("service", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getService)
 				.map(Service::getName)));
-		form.add(new Label("container", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getName)));
-		form.add(new Label("state", groupModel.map(Group::getPlaybackStateEnum).map(PlaybackState::getTitle)));
+		status.add(
+				new Label("container", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getName)));
+		status.add(new Label("state", groupModel.map(Group::getPlaybackStateEnum).map(PlaybackState::getTitle)));
 
 		SonosEventResource.addSonosEventListener(MetadataStatus.class, StatusPage.this,
 				new IPushEventHandler<Event<MetadataStatus>>() {
