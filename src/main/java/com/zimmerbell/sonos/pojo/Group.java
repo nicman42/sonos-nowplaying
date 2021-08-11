@@ -3,10 +3,21 @@ package com.zimmerbell.sonos.pojo;
 public class Group extends Id {
 	private static final long serialVersionUID = 1L;
 
+	private Household household;
+
 	private String id;
 	private String name;
 	private String playbackState;
 
+	public Household getHousehold() {
+		return household;
+	}
+
+	public void setHousehold(Household household) {
+		this.household = household;
+	}
+
+	@Override
 	public String getId() {
 		return id;
 	}
@@ -34,7 +45,7 @@ public class Group extends Id {
 	public PlaybackState getPlaybackStateEnum() {
 		try {
 			return PlaybackState.valueOf(playbackState);
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			return PlaybackState.UNDEFINED;
 		}
 	}
