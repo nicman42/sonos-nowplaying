@@ -20,7 +20,6 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseException;
-import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
@@ -31,6 +30,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.zimmerbell.sonos.WicketSession;
 import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
@@ -60,9 +60,6 @@ public class SonosService implements Serializable {
 	private static final String PAGE_PARAM_AUTH_CODE = "code";
 	private static final String PAGE_PARAM_STATE = "state";
 	private static final String PAGE_PARAM_FORCE_REFRESH_TOKEN = "reauth";
-	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN = "access_token";
-	private static final String SESSION_ATTRIBUTE_REFRESH_TOKEN = "refresh_token";
-	private static final String SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE = "access_token_expiration_date";
 
 	public static final String SESSION_ATTRIBUTE_HOUSEHOLDS = "households";
 	public static final String SESSION_ATTRIBUTE_HOUSEHOLD = "household";
@@ -84,9 +81,9 @@ public class SonosService implements Serializable {
 		}
 
 		final String authCode = pageParameters.get(PAGE_PARAM_AUTH_CODE).toString();
-		String accessToken = getAccessToken();
-		LocalDateTime accessTokenExpirationDate = (LocalDateTime) WebSession.get()
-				.getAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE);
+		String accessToken = WicketSession.get().getAccessToken();
+		LocalDateTime accessTokenExpirationDate = WicketSession.get().getAccessTokenExpirationDate();
+
 		if (authCode != null //
 				|| (accessTokenExpirationDate != null
 						&& accessTokenExpirationDate.isBefore(LocalDateTime.now().plusMinutes(1))) //
@@ -113,7 +110,7 @@ public class SonosService implements Serializable {
 							+ "code=" + authCode + "&" //
 							+ "redirect_uri=" + redirectUri;
 				} else {
-					final String refreshToken = (String) WebSession.get().getAttribute(SESSION_ATTRIBUTE_REFRESH_TOKEN);
+					final String refreshToken = WicketSession.get().getRefreshToken();
 					LOG.info("refreshToken: {}", refreshToken);
 					postParams = "grant_type=refresh_token&" //
 							+ "refresh_token=" + refreshToken;
@@ -133,13 +130,12 @@ public class SonosService implements Serializable {
 				final JSONObject json = new JSONObject(response);
 
 				accessToken = json.getString("access_token");
-				WebSession.get().setAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN, accessToken);
+				WicketSession.get().setAccessToken(accessToken);
 
 				accessTokenExpirationDate = LocalDateTime.now().plusSeconds(json.getInt("expires_in"));
-				WebSession.get().setAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE,
-						accessTokenExpirationDate);
+				WicketSession.get().setAccessTokenExpirationDate(accessTokenExpirationDate);
 
-				WebSession.get().setAttribute(SESSION_ATTRIBUTE_REFRESH_TOKEN, json.getString("refresh_token"));
+				WicketSession.get().setRefreshToken(json.getString("refresh_token"));
 
 				throw new RestartResponseException(pageClass, pageParameters);
 			} catch (final IOException e) {
@@ -178,7 +174,7 @@ public class SonosService implements Serializable {
 			con.setRequestMethod(method);
 		}
 
-		con.setRequestProperty("Authorization", "Bearer " + getAccessToken());
+		con.setRequestProperty("Authorization", "Bearer " + WicketSession.get().getAccessToken());
 
 		LOG.info("reponse message: {}", con.getResponseMessage());
 
@@ -211,7 +207,7 @@ public class SonosService implements Serializable {
 
 		return jsonToObject(json, MetadataStatus.class);
 	}
-	
+
 	public PlaybackStatus queryPlaybackStatus(Group group) throws IOException {
 		final JsonElement json = apiRequest("groups", group.getId(), "playback");
 
@@ -240,10 +236,6 @@ public class SonosService implements Serializable {
 
 	private <T> T jsonToObject(JsonElement jsonElement, Class<T> classOfT) {
 		return gson().fromJson(jsonElement, classOfT);
-	}
-
-	private String getAccessToken() {
-		return (String) WebSession.get().getAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN);
 	}
 
 	private Gson gson() {
