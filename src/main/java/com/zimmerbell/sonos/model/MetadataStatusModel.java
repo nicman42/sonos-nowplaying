@@ -2,6 +2,7 @@ package com.zimmerbell.sonos.model;
 
 import java.io.IOException;
 
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 import com.zimmerbell.sonos.pojo.Group;
@@ -12,9 +13,9 @@ public class MetadataStatusModel extends LoadableDetachableModel<MetadataStatus>
 	private static final long serialVersionUID = 1L;
 
 	private final SonosService sonosService = new SonosService();
-	private final GroupModel groupModel;
+	private final IModel<Group> groupModel;
 
-	public MetadataStatusModel(GroupModel groupModel) {
+	public MetadataStatusModel(IModel<Group> groupModel) {
 		this.groupModel = groupModel;
 	}
 
