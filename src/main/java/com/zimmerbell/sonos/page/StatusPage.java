@@ -122,7 +122,14 @@ public class StatusPage extends AbstractBasePage {
 
 		status.add(new Label("track", trackModel.map(Track::getName)));
 		status.add(new Label("album", trackModel.map(Track::getAlbum).map(Album::getName)));
-		status.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)));
+		status.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)) {
+			@Override
+			protected void onConfigure() {
+				super.onConfigure();
+
+				setVisible(getDefaultModelObject() != null);
+			}
+		});
 		status.add(new Label("service", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getService)
 				.map(Service::getName)));
 		status.add(
