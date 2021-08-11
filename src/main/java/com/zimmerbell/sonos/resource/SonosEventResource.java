@@ -34,7 +34,7 @@ import org.wicketstuff.push.IPushNode;
 import org.wicketstuff.push.timer.TimerPushService;
 
 import com.google.gson.Gson;
-import com.zimmerbell.sonos.model.HouseholdsModel;
+import com.zimmerbell.sonos.WicketSession;
 import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.IEventType;
@@ -109,7 +109,7 @@ public class SonosEventResource extends AbstractResource {
 			SerializableFunction<Event<T>, Boolean> onEvent) {
 
 		final List<SonosEventListener<T>> newSonosEventListeners = new LinkedList<>();
-		for (final Household household : new HouseholdsModel().getObject()) {
+		for (final Household household : WicketSession.get().getHouseholds()) {
 			final SonosEventListener<T> sonosEventListener = new SonosEventListener<T>(eventClass, household.getId()) {
 				@Override
 				public void onEvent(Event<T> event) {

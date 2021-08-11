@@ -63,11 +63,6 @@ public class SonosService implements Serializable {
 	private static final String PAGE_PARAM_STATE = "state";
 	private static final String PAGE_PARAM_FORCE_REFRESH_TOKEN = "reauth";
 
-	public static final String SESSION_ATTRIBUTE_HOUSEHOLDS = "households";
-	public static final String SESSION_ATTRIBUTE_HOUSEHOLD = "household";
-	public static final String SESSION_ATTRIBUTE_GROUPS = "groups";
-	public static final String SESSION_ATTRIBUTE_GROUP = "group";
-
 	private transient Gson gson;
 
 	/**

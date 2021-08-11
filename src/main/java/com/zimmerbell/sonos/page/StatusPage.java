@@ -1,5 +1,6 @@
 package com.zimmerbell.sonos.page;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -9,6 +10,7 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.ExternalImage;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LambdaModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +18,8 @@ import org.wicketstuff.push.IPushEventContext;
 import org.wicketstuff.push.IPushEventHandler;
 import org.wicketstuff.push.IPushNode;
 
+import com.zimmerbell.sonos.WicketSession;
 import com.zimmerbell.sonos.behavior.FormSubmitOnChangeBehavior;
-import com.zimmerbell.sonos.model.GroupModel;
-import com.zimmerbell.sonos.model.GroupsModel;
-import com.zimmerbell.sonos.model.HouseholdModel;
-import com.zimmerbell.sonos.model.HouseholdsModel;
 import com.zimmerbell.sonos.model.Item;
 import com.zimmerbell.sonos.model.MetadataStatusModel;
 import com.zimmerbell.sonos.model.PlaybackStatusModel;
@@ -50,10 +49,12 @@ public class StatusPage extends AbstractBasePage {
 	protected void onInitialize() {
 		super.onInitialize();
 
-		final HouseholdsModel householdsModel = new HouseholdsModel();
-		final HouseholdModel householdModel = new HouseholdModel();
-		final GroupsModel groupsModel = new GroupsModel();
-		final GroupModel groupModel = new GroupModel();
+		final WicketSession session = WicketSession.get();
+
+		final IModel<List<Household>> householdsModel = LambdaModel.of(session::getHouseholds);
+		final IModel<Household> householdModel = LambdaModel.of(session::getHousehold, session::setHousehold);
+		final IModel<List<Group>> groupsModel = LambdaModel.of(session::getGroups);
+		final IModel<Group> groupModel = LambdaModel.of(session::getGroup, session::setGroup);
 		final MetadataStatusModel metadataStatusModel = new MetadataStatusModel(groupModel);
 		final PlaybackStatusModel playbackStatusModel = new PlaybackStatusModel(groupModel);
 
