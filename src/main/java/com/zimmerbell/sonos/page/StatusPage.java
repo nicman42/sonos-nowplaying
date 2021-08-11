@@ -24,6 +24,7 @@ import com.zimmerbell.sonos.model.Item;
 import com.zimmerbell.sonos.model.MetadataStatusModel;
 import com.zimmerbell.sonos.model.PlaybackStatusModel;
 import com.zimmerbell.sonos.pojo.Album;
+import com.zimmerbell.sonos.pojo.Artist;
 import com.zimmerbell.sonos.pojo.Container;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
@@ -122,6 +123,7 @@ public class StatusPage extends AbstractBasePage {
 		final IModel<Track> trackModel = metadataStatusModel.map(MetadataStatus::getCurrentItem).map(Item::getTrack);
 
 		status.add(new Label("track", trackModel.map(Track::getName)));
+		status.add(new Label("artist", trackModel.map(Track::getArtist).map(Artist::getName)));
 		status.add(new Label("album", trackModel.map(Track::getAlbum).map(Album::getName)));
 		status.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)) {
 			@Override
