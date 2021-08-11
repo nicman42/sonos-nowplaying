@@ -8,6 +8,7 @@ public class Track implements Serializable {
 	private String name;
 	private String imageUrl;
 
+	private Artist artist;
 	private Album album;
 
 	public String getName() {
@@ -24,6 +25,14 @@ public class Track implements Serializable {
 
 	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
+	}
+
+	public Artist getArtist() {
+		return artist;
+	}
+
+	public void setArtist(Artist artist) {
+		this.artist = artist;
 	}
 
 	public Album getAlbum() {
