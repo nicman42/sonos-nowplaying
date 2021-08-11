@@ -59,7 +59,7 @@ public class WicketApplication extends WebApplication {
 	public Session newSession(Request request, Response response) {
 		LOG.debug("newSession");
 
-		return super.newSession(request, response);
+		return new WicketSession(request);
 	}
 
 	@Override
