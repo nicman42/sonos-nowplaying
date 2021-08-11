@@ -42,9 +42,6 @@ public class StatusPage extends AbstractBasePage {
 	private static final Logger LOG = LoggerFactory.getLogger(StatusPage.class);
 	public static final String PARAM_CONFIG = "config";
 
-	private final MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
-	private final PlaybackStatusModel playbackStatusModel = new PlaybackStatusModel();
-
 	public StatusPage(PageParameters parameters) {
 		super(parameters);
 	}
@@ -57,6 +54,8 @@ public class StatusPage extends AbstractBasePage {
 		final HouseholdModel householdModel = new HouseholdModel();
 		final GroupsModel groupsModel = new GroupsModel();
 		final GroupModel groupModel = new GroupModel();
+		final MetadataStatusModel metadataStatusModel = new MetadataStatusModel(groupModel);
+		final PlaybackStatusModel playbackStatusModel = new PlaybackStatusModel(groupModel);
 
 		final WebMarkupContainer status = new WebMarkupContainer("status");
 		final WebMarkupContainer config = new WebMarkupContainer("config");

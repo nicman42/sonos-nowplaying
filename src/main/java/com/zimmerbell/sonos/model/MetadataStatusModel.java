@@ -12,7 +12,11 @@ public class MetadataStatusModel extends LoadableDetachableModel<MetadataStatus>
 	private static final long serialVersionUID = 1L;
 
 	private final SonosService sonosService = new SonosService();
-	private final GroupModel groupModel = new GroupModel();
+	private final GroupModel groupModel;
+
+	public MetadataStatusModel(GroupModel groupModel) {
+		this.groupModel = groupModel;
+	}
 
 	@Override
 	protected MetadataStatus load() {

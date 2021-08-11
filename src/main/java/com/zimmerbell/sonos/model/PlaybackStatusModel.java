@@ -11,7 +11,11 @@ import com.zimmerbell.sonos.service.SonosService;
 public class PlaybackStatusModel extends LoadableDetachableModel<PlaybackStatus> {
 
 	private final SonosService sonosService = new SonosService();
-	private final GroupModel groupModel = new GroupModel();
+	private final GroupModel groupModel;
+
+	public PlaybackStatusModel(GroupModel groupModel) {
+		this.groupModel = groupModel;
+	}
 
 	@Override
 	protected PlaybackStatus load() {
