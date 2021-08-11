@@ -23,12 +23,14 @@ import com.zimmerbell.sonos.model.HouseholdModel;
 import com.zimmerbell.sonos.model.HouseholdsModel;
 import com.zimmerbell.sonos.model.Item;
 import com.zimmerbell.sonos.model.MetadataStatusModel;
+import com.zimmerbell.sonos.model.PlaybackStatusModel;
 import com.zimmerbell.sonos.pojo.Album;
 import com.zimmerbell.sonos.pojo.Container;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.PlaybackState;
+import com.zimmerbell.sonos.pojo.PlaybackStatus;
 import com.zimmerbell.sonos.pojo.Service;
 import com.zimmerbell.sonos.pojo.Track;
 import com.zimmerbell.sonos.resource.SonosEventResource;
@@ -41,6 +43,7 @@ public class StatusPage extends AbstractBasePage {
 	public static final String PARAM_CONFIG = "config";
 
 	private final MetadataStatusModel metadataStatusModel = new MetadataStatusModel();
+	private final PlaybackStatusModel playbackStatusModel = new PlaybackStatusModel();
 
 	public StatusPage(PageParameters parameters) {
 		super(parameters);
@@ -125,7 +128,10 @@ public class StatusPage extends AbstractBasePage {
 				.map(Service::getName)));
 		status.add(
 				new Label("container", metadataStatusModel.map(MetadataStatus::getContainer).map(Container::getName)));
-		status.add(new Label("state", groupModel.map(Group::getPlaybackStateEnum).map(PlaybackState::getTitle)));
+		// status.add(new Label("state",
+		// groupModel.map(Group::getPlaybackStateEnum).map(PlaybackState::getTitle)));
+		status.add(new Label("state",
+				playbackStatusModel.map(PlaybackStatus::getPlaybackStateEnum).map(PlaybackState::getTitle)));
 
 		SonosEventResource.addSonosEventListener(MetadataStatus.class, StatusPage.this,
 				new IPushEventHandler<Event<MetadataStatus>>() {
@@ -140,6 +146,20 @@ public class StatusPage extends AbstractBasePage {
 						}
 					}
 
+				});
+		SonosEventResource.addSonosEventListener(PlaybackStatus.class, StatusPage.this,
+				new IPushEventHandler<Event<PlaybackStatus>>() {
+
+					@Override
+					public void onEvent(AjaxRequestTarget target, Event<PlaybackStatus> event,
+							IPushNode<Event<PlaybackStatus>> node, IPushEventContext<Event<PlaybackStatus>> ctx) {
+
+						if (event.getTargetValue()
+								.equals(Optional.ofNullable(groupModel.getObject()).map(Group::getId).orElse(null))) {
+							playbackStatusModel.setObject(event.getObject());
+							target.add(form);
+						}
+					}
 				});
 	}
 
