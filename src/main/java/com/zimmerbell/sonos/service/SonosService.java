@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -36,6 +37,7 @@ import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.PlaybackStatus;
+import com.zimmerbell.sonos.resource.SonosEventResource;
 
 public class SonosService implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -199,7 +201,9 @@ public class SonosService implements Serializable {
 	public List<Group> queryGroups(Household household) throws IOException {
 		final JsonArray groups = apiRequest("households", household.getId(), "groups").getAsJsonObject().get("groups")
 				.getAsJsonArray();
-		return jsonToList(groups, Group.class);
+		final List<Group> groupsList = jsonToList(groups, Group.class);
+		groupsList.stream().forEach(g -> g.setHousehold(household));
+		return groupsList;
 	}
 
 	public MetadataStatus queryPlaybackMetadataStatus(Group group) throws IOException {
@@ -230,6 +234,11 @@ public class SonosService implements Serializable {
 	}
 
 	public void unsubscribe(Group group) throws IOException {
+		final Household household = group.getHousehold();
+		if (household != null && Objects.equals(household.getId(), SonosEventResource.SONOS_HOUSEHOLD)) {
+			LOG.debug("don't unsubscribe on main household");
+			return;
+		}
 		apiRequestMethod("DELETE", "groups/" + group.getId() + "/playbackMetadata/subscription");
 		apiRequestMethod("DELETE", "groups/" + group.getId() + "/playback/subscription");
 	}
