@@ -65,23 +65,8 @@ public class SonosEventResource extends AbstractResource {
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
-//					String payload = null;
-//					switch (event.getObject().getPlaybackStateEnum()) {
-//					case PLAYBACK_STATE_BUFFERING:
-//					case PLAYBACK_STATE_PLAYING:
-//						payload = "1";
-//						break;
-//					case PLAYBACK_STATE_PAUSED:
-//					case PLAYBACK_STATE_IDLE:
-//						payload = "0";
-//						break;
-//					default:
-//						break;
-//					}
-//					if (payload != null) {
 					new AutomateCloudService().sendMessage(event.getTargetValue(),
 							event.getObject().getPlaybackState());
-//					}
 				}
 			});
 		}
