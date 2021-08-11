@@ -35,6 +35,7 @@ import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
+import com.zimmerbell.sonos.pojo.PlaybackStatus;
 
 public class SonosService implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -45,10 +46,10 @@ public class SonosService implements Serializable {
 	public static final String SONOS_CLIENT_ID;
 	public static final String SONOS_CLIENT_SECRET;
 	static {
-		Properties properties = new Properties();
+		final Properties properties = new Properties();
 		try {
 			properties.load(AbstractBasePage.class.getResourceAsStream("/config.properties"));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
@@ -78,11 +79,11 @@ public class SonosService implements Serializable {
 		String redirectUri;
 		try {
 			redirectUri = URLEncoder.encode(REDIRECT_URI, "UTF8");
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 
-		String authCode = pageParameters.get(PAGE_PARAM_AUTH_CODE).toString();
+		final String authCode = pageParameters.get(PAGE_PARAM_AUTH_CODE).toString();
 		String accessToken = getAccessToken();
 		LocalDateTime accessTokenExpirationDate = (LocalDateTime) WebSession.get()
 				.getAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN_EXPIRATION_DATE);
@@ -97,7 +98,7 @@ public class SonosService implements Serializable {
 			pageParameters.remove(PAGE_PARAM_FORCE_REFRESH_TOKEN,
 					pageParameters.get(PAGE_PARAM_FORCE_REFRESH_TOKEN).toString());
 			try {
-				HttpURLConnection con = (HttpURLConnection) new URL("https://api.sonos.com/login/v3/oauth/access")
+				final HttpURLConnection con = (HttpURLConnection) new URL("https://api.sonos.com/login/v3/oauth/access")
 						.openConnection();
 
 				final String clientIdAndSecret = Base64.getUrlEncoder()
@@ -112,7 +113,7 @@ public class SonosService implements Serializable {
 							+ "code=" + authCode + "&" //
 							+ "redirect_uri=" + redirectUri;
 				} else {
-					String refreshToken = (String) WebSession.get().getAttribute(SESSION_ATTRIBUTE_REFRESH_TOKEN);
+					final String refreshToken = (String) WebSession.get().getAttribute(SESSION_ATTRIBUTE_REFRESH_TOKEN);
 					LOG.info("refreshToken: {}", refreshToken);
 					postParams = "grant_type=refresh_token&" //
 							+ "refresh_token=" + refreshToken;
@@ -126,10 +127,10 @@ public class SonosService implements Serializable {
 
 				LOG.info("response message: {}", con.getResponseMessage());
 
-				String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8.name());
+				final String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8.name());
 				LOG.info("response: {}", response);
 
-				JSONObject json = new JSONObject(response);
+				final JSONObject json = new JSONObject(response);
 
 				accessToken = json.getString("access_token");
 				WebSession.get().setAttribute(SESSION_ATTRIBUTE_ACCESS_TOKEN, accessToken);
@@ -141,7 +142,7 @@ public class SonosService implements Serializable {
 				WebSession.get().setAttribute(SESSION_ATTRIBUTE_REFRESH_TOKEN, json.getString("refresh_token"));
 
 				throw new RestartResponseException(pageClass, pageParameters);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -164,15 +165,15 @@ public class SonosService implements Serializable {
 	}
 
 	private JsonElement apiRequestMethod(String method, String... path) throws IOException {
-		StringBuilder url = new StringBuilder("https://api.ws.sonos.com/control/api/v1");
-		for (String s : path) {
+		final StringBuilder url = new StringBuilder("https://api.ws.sonos.com/control/api/v1");
+		for (final String s : path) {
 			if (s != null) {
 				url.append("/").append(s);
 			}
 		}
 		LOG.info("{}: {}", method == null ? "GET" : method, url);
 
-		HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
+		final HttpURLConnection con = (HttpURLConnection) new URL(url.toString()).openConnection();
 		if (method != null) {
 			con.setRequestMethod(method);
 		}
@@ -181,17 +182,17 @@ public class SonosService implements Serializable {
 
 		LOG.info("reponse message: {}", con.getResponseMessage());
 
-		String response = IOUtils.toString(con.getInputStream(), "utf8" + "");
+		final String response = IOUtils.toString(con.getInputStream(), "utf8" + "");
 		LOG.debug("response: {}", response);
 
 		return new JsonParser().parse(response);
 	}
 
 	public List<Household> queryHouseholds() throws IOException {
-		JsonArray jsonArray = apiRequest("households").getAsJsonObject().get("households").getAsJsonArray();
-		List<Household> households = jsonToList(jsonArray, Household.class);
+		final JsonArray jsonArray = apiRequest("households").getAsJsonObject().get("households").getAsJsonArray();
+		final List<Household> households = jsonToList(jsonArray, Household.class);
 		int i = 1;
-		for (Household household : households) {
+		for (final Household household : households) {
 			if (household.getName() == null) {
 				household.setName("Household#" + i++);
 			}
@@ -200,15 +201,21 @@ public class SonosService implements Serializable {
 	}
 
 	public List<Group> queryGroups(Household household) throws IOException {
-		JsonArray groups = apiRequest("households", household.getId(), "groups").getAsJsonObject().get("groups")
+		final JsonArray groups = apiRequest("households", household.getId(), "groups").getAsJsonObject().get("groups")
 				.getAsJsonArray();
 		return jsonToList(groups, Group.class);
 	}
 
 	public MetadataStatus queryPlaybackMetadataStatus(Group group) throws IOException {
-		JsonElement json = apiRequest("groups", group.getId(), "playbackMetadata");
+		final JsonElement json = apiRequest("groups", group.getId(), "playbackMetadata");
 
 		return jsonToObject(json, MetadataStatus.class);
+	}
+	
+	public PlaybackStatus queryPlaybackStatus(Group group) throws IOException {
+		final JsonElement json = apiRequest("groups", group.getId(), "playback");
+
+		return jsonToObject(json, PlaybackStatus.class);
 	}
 
 	private <T> List<T> jsonToList(JsonArray jsonArray, Class<T> classOfT) {
