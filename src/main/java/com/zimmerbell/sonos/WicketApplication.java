@@ -62,4 +62,12 @@ public class WicketApplication extends WebApplication {
 		return super.newSession(request, response);
 	}
 
+	@Override
+	protected void onDestroy() {
+		LOG.debug("onDestroy application");
+		super.onDestroy();
+
+		SonosEventResource.removeAllSonosEventListener();
+	}
+
 }
