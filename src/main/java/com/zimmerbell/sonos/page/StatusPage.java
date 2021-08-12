@@ -12,6 +12,7 @@ import org.apache.wicket.markup.html.image.ExternalImage;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LambdaModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.string.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wicketstuff.push.IPushEventContext;
@@ -23,6 +24,7 @@ import com.zimmerbell.sonos.behavior.FormSubmitOnChangeBehavior;
 import com.zimmerbell.sonos.model.Item;
 import com.zimmerbell.sonos.model.MetadataStatusModel;
 import com.zimmerbell.sonos.model.PlaybackStatusModel;
+import com.zimmerbell.sonos.pojo.Album;
 import com.zimmerbell.sonos.pojo.Artist;
 import com.zimmerbell.sonos.pojo.Container;
 import com.zimmerbell.sonos.pojo.Group;
@@ -123,6 +125,13 @@ public class StatusPage extends AbstractBasePage {
 
 		status.add(new Label("track", trackModel.map(Track::getName)));
 		status.add(new Label("artist", trackModel.map(Track::getArtist).map(Artist::getName)));
+		status.add(new Label("album", trackModel.map(Track::getAlbum).map(Album::getName)) {
+			@Override
+			protected void onConfigure() {
+				super.onConfigure();
+				setVisible(Strings.isEmpty(trackModel.map(Track::getArtist).map(Artist::getName).getObject()));
+			}
+		});
 
 		status.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)) {
 			@Override
