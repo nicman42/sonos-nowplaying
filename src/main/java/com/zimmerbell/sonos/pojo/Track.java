@@ -5,11 +5,22 @@ import java.io.Serializable;
 public class Track implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private String type;
+
 	private String name;
 	private String imageUrl;
 
 	private Artist artist;
 	private Album album;
+	private Integer trackNumber;
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 
 	public String getName() {
 		return name;
@@ -41,6 +52,14 @@ public class Track implements Serializable {
 
 	public void setAlbum(Album album) {
 		this.album = album;
+	}
+
+	public Integer getTrackNumber() {
+		return trackNumber;
+	}
+
+	public void setTrackNumber(Integer trackNumber) {
+		this.trackNumber = trackNumber;
 	}
 
 }
