@@ -157,7 +157,7 @@ public class SonosEventResource extends AbstractResource {
 
 		for (final Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
 			final String headerName = headerNames.nextElement();
-			LOG.debug("{}: {}", headerName, request.getHeader(headerName));
+			LOG.trace("{}: {}", headerName, request.getHeader(headerName));
 		}
 
 		final String namespace = request.getHeader("X-Sonos-Namespace");
@@ -168,7 +168,7 @@ public class SonosEventResource extends AbstractResource {
 
 		try {
 			final String content = IOUtils.toString(request.getInputStream());
-			LOG.info("content: {}", content);
+			LOG.debug("content: {}", content);
 			final EventKey eventKey = new EventKey(namespace, type, householdId);
 
 			final Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
