@@ -39,6 +39,7 @@ import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.IEventType;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
+import com.zimmerbell.sonos.pojo.PlaybackState;
 import com.zimmerbell.sonos.pojo.PlaybackStatus;
 import com.zimmerbell.sonos.service.AutomateCloudService;
 import com.zimmerbell.sonos.service.SonosService;
@@ -62,9 +63,23 @@ public class SonosEventResource extends AbstractResource {
 
 		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
 		if (SONOS_HOUSEHOLD != null) {
+			final Map<String, MetadataStatus> metadataStatusByGroup = Collections.synchronizedMap(new HashMap<>());
+			addSonosEventListener(new SonosEventListener<MetadataStatus>(MetadataStatus.class, SONOS_HOUSEHOLD) {
+				@Override
+				public void onEvent(Event<MetadataStatus> event) {
+					metadataStatusByGroup.put(event.getTargetValue(), event.getObject());
+				}
+
+			});
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
+					final MetadataStatus metadataStatus = metadataStatusByGroup.get(event.getTargetValue());
+					if (metadataStatus != null && metadataStatus.getContainer().isLineIn()
+							&& PlaybackState.PLAYBACK_STATE_PLAYING.equals(event.getObject().getPlaybackStateEnum())) {
+						LOG.debug("ignore start of line in");
+						return;
+					}
 					new AutomateCloudService().sendMessage(event.getTargetValue(),
 							event.getObject().getPlaybackState());
 				}
