@@ -66,7 +66,7 @@ public class SonosEventResource extends AbstractResource {
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
-					if (event.getObject().getAvailablePlaybackActions().getCanStop()
+					if (!event.getObject().getAvailablePlaybackActions().getCanStop()
 							&& PlaybackState.PLAYBACK_STATE_PLAYING.equals(event.getObject().getPlaybackStateEnum())) {
 						LOG.debug("ignore start of line in");
 						return;
