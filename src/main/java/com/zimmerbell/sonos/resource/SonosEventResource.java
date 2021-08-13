@@ -75,6 +75,9 @@ public class SonosEventResource extends AbstractResource {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
 					final MetadataStatus metadataStatus = metadataStatusByGroup.get(event.getTargetValue());
+					LOG.debug("metadataStatus: {}", metadataStatus);
+					LOG.debug("is line in: {}", metadataStatus.getContainer().isLineIn());
+					LOG.debug("playback state: {}", event.getObject().getPlaybackStateEnum());
 					if (metadataStatus != null && metadataStatus.getContainer().isLineIn()
 							&& PlaybackState.PLAYBACK_STATE_PLAYING.equals(event.getObject().getPlaybackStateEnum())) {
 						LOG.debug("ignore start of line in");
