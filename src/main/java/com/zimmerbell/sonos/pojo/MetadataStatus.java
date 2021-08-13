@@ -6,6 +6,7 @@ public class MetadataStatus implements IEventType {
 	private Container container;
 	private Item currentItem;
 	private Item nextItem;
+	private String streamInfo;
 
 	public Container getContainer() {
 		return container;
@@ -29,6 +30,14 @@ public class MetadataStatus implements IEventType {
 
 	public void setNextItem(Item nextItem) {
 		this.nextItem = nextItem;
+	}
+
+	public String getStreamInfo() {
+		return streamInfo;
+	}
+
+	public void setStreamInfo(String streamInfo) {
+		this.streamInfo = streamInfo;
 	}
 
 }

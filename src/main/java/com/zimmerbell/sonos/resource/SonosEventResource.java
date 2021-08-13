@@ -213,7 +213,7 @@ public class SonosEventResource extends AbstractResource {
 				LOG.info("invalid signature \"{}\"", signature);
 				throw new AbortWithHttpErrorCodeException(401, "invalid signature");
 			}
-			LOG.info("signature valid");
+			LOG.trace("signature valid");
 		} catch (final NoSuchAlgorithmException e) {
 			throw new WicketRuntimeException(e);
 		}

@@ -132,6 +132,7 @@ public class StatusPage extends AbstractBasePage {
 				setVisible(Strings.isEmpty(trackModel.map(Track::getArtist).map(Artist::getName).getObject()));
 			}
 		});
+		status.add(new Label("streamInfo", metadataStatusModel.map(MetadataStatus::getStreamInfo)));
 
 		status.add(new ExternalImage("image", trackModel.map(Track::getImageUrl)) {
 			@Override
