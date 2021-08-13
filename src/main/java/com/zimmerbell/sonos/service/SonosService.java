@@ -173,7 +173,7 @@ public class SonosService implements Serializable {
 
 		con.setRequestProperty("Authorization", "Bearer " + WicketSession.get().getAccessToken());
 
-		LOG.info("reponse message: {}", con.getResponseMessage());
+		LOG.debug("reponse message: {}", con.getResponseMessage());
 
 		final String response = IOUtils.toString(con.getInputStream(), "utf8" + "");
 		LOG.debug("response: {}", response);
