@@ -3,6 +3,9 @@ package com.zimmerbell.sonos.pojo;
 import java.io.Serializable;
 
 public class Container implements Serializable {
+	
+	public final String TYPE_LINEIN_HOMETHEATER = "linein.homeTheater";
+	
 	private String type;
 	private String name;
 	private Service service;
@@ -31,4 +34,7 @@ public class Container implements Serializable {
 		this.service = service;
 	}
 
+	public boolean isLineIn() {
+		return TYPE_LINEIN_HOMETHEATER.equals(type);
+	}
 }
