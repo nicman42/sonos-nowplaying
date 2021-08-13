@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +36,6 @@ import org.wicketstuff.push.timer.TimerPushService;
 import com.google.gson.Gson;
 import com.zimmerbell.sonos.WicketSession;
 import com.zimmerbell.sonos.page.AbstractBasePage;
-import com.zimmerbell.sonos.pojo.Container;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.IEventType;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
@@ -65,25 +63,10 @@ public class SonosEventResource extends AbstractResource {
 
 		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
 		if (SONOS_HOUSEHOLD != null) {
-			final Map<String, MetadataStatus> metadataStatusByGroup = Collections.synchronizedMap(new HashMap<>());
-			addSonosEventListener(new SonosEventListener<MetadataStatus>(MetadataStatus.class, SONOS_HOUSEHOLD) {
-				@Override
-				public void onEvent(Event<MetadataStatus> event) {
-					LOG.debug("metadataStatus for group {}: {}", event.getTargetValue(), event.getObject());
-					metadataStatusByGroup.put(event.getTargetValue(), event.getObject());
-				}
-
-			});
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
-					final MetadataStatus metadataStatus = metadataStatusByGroup.get(event.getTargetValue());
-					LOG.debug("metadataStatus: {}", metadataStatus);
-					LOG.debug("is line in: {}", Optional.ofNullable(metadataStatus).map(MetadataStatus::getContainer)
-							.map(Container::isLineIn).orElse(false));
-					LOG.debug("playback state: {}", event.getObject().getPlaybackStateEnum());
-					if (Optional.ofNullable(metadataStatus).map(MetadataStatus::getContainer).map(Container::isLineIn)
-							.orElse(false)
+					if (event.getObject().getAvailablePlaybackActions().getCanStop()
 							&& PlaybackState.PLAYBACK_STATE_PLAYING.equals(event.getObject().getPlaybackStateEnum())) {
 						LOG.debug("ignore start of line in");
 						return;
