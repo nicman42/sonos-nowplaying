@@ -1,9 +1,6 @@
 package com.zimmerbell.sonos.pojo;
 
 public class PlaybackStatus implements IEventType {
-	public final static String STATE_PLAYING = "PLAYBACK_STATE_PLAYING";
-	
-	
 	private String playbackState;
 
 	public String getPlaybackState() {
