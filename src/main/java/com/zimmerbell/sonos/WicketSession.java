@@ -4,15 +4,19 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class WicketSession extends WebSession {
+	private static final Logger LOG = LoggerFactory.getLogger(WicketSession.class);
 
 	private String accessToken;
 	private String refreshToken;
@@ -95,6 +99,22 @@ public class WicketSession extends WebSession {
 	}
 
 	public void setGroup(Group group) {
+		if (!Objects.equals(this.group, group)) {
+			if (this.group != null) {
+				try {
+					new SonosService().unsubscribe(this.group);
+				} catch (final IOException e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+			if (group != null) {
+				try {
+					new SonosService().subscribe(group);
+				} catch (final IOException e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
 		this.group = group;
 	}
 
