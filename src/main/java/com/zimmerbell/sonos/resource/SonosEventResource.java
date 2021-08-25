@@ -150,7 +150,7 @@ public class SonosEventResource extends AbstractResource {
 
 	@Override
 	protected ResourceResponse newResourceResponse(Attributes attributes) {
-		LOG.trace("new event");
+		LOG.debug("new event");
 
 		final HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
@@ -168,7 +168,7 @@ public class SonosEventResource extends AbstractResource {
 
 		try {
 			final String content = IOUtils.toString(request.getInputStream());
-			LOG.debug("{}/{}: {}", namespace, type, content);
+			LOG.info("{}/{}: {}", namespace, type, content);
 			final EventKey eventKey = new EventKey(namespace, type, householdId);
 
 			final Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
