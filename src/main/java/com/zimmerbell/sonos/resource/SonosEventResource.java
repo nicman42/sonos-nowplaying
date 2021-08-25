@@ -150,7 +150,7 @@ public class SonosEventResource extends AbstractResource {
 
 	@Override
 	protected ResourceResponse newResourceResponse(Attributes attributes) {
-		LOG.debug("new event");
+		LOG.trace("new event");
 
 		final HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 		verifySignature(request);
@@ -168,7 +168,7 @@ public class SonosEventResource extends AbstractResource {
 
 		try {
 			final String content = IOUtils.toString(request.getInputStream());
-			LOG.debug("content: {}", content);
+			LOG.debug("{}/{}: {}", namespace, type, content);
 			final EventKey eventKey = new EventKey(namespace, type, householdId);
 
 			final Collection<SonosEventListener<?>> sonosEventListeners = getSonosEventListeners(eventKey);
@@ -213,7 +213,7 @@ public class SonosEventResource extends AbstractResource {
 				LOG.info("invalid signature \"{}\"", signature);
 				throw new AbortWithHttpErrorCodeException(401, "invalid signature");
 			}
-			LOG.debug("signature valid");
+			LOG.trace("signature valid");
 		} catch (final NoSuchAlgorithmException e) {
 			throw new WicketRuntimeException(e);
 		}
