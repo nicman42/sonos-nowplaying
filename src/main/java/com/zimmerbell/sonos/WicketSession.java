@@ -29,6 +29,8 @@ public class WicketSession extends WebSession {
 
 	public WicketSession(Request request) {
 		super(request);
+		
+		LOG.info("new wicket session");
 	}
 
 	public static WicketSession get() {
