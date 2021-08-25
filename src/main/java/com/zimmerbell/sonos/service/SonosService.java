@@ -224,6 +224,7 @@ public class SonosService implements Serializable {
 			LOG.info("don't subscribe on localhost");
 			return;
 		}
+		LOG.info("subscribe to group {}", group.getName());
 		apiRequestMethod("POST", "groups/" + group.getId() + "/playbackMetadata/subscription");
 		apiRequestMethod("POST", "groups/" + group.getId() + "/playback/subscription");
 	}
@@ -234,6 +235,7 @@ public class SonosService implements Serializable {
 			LOG.debug("don't unsubscribe on main household");
 			return;
 		}
+		LOG.info("unsubscribe from group {}", group.getName());
 		apiRequestMethod("DELETE", "groups/" + group.getId() + "/playbackMetadata/subscription");
 		apiRequestMethod("DELETE", "groups/" + group.getId() + "/playback/subscription");
 	}
