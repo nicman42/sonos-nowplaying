@@ -20,10 +20,10 @@ public class AutomateCloudService {
 	public static final String AUTOMATE_SECRET;
 	public static final String AUTOMATE_EMAIL;
 	static {
-		Properties properties = new Properties();
+		final Properties properties = new Properties();
 		try {
 			properties.load(AbstractBasePage.class.getResourceAsStream("/config.properties"));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
@@ -36,7 +36,7 @@ public class AutomateCloudService {
 			payload = "";
 		}
 		try {
-			HttpURLConnection con = (HttpURLConnection) new URL("https://llamalab.com/automate/cloud/message")
+			final HttpURLConnection con = (HttpURLConnection) new URL("https://llamalab.com/automate/cloud/message")
 					.openConnection();
 
 			con.setRequestMethod("POST");
@@ -52,11 +52,11 @@ public class AutomateCloudService {
 				wr.write(postParamsBytes);
 			}
 
-			LOG.info("response message: {}", con.getResponseMessage());
+			LOG.debug("response message: {}", con.getResponseMessage());
 
-			String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8.name());
+			final String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8.name());
 			LOG.trace("response: {}", response);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
