@@ -81,7 +81,7 @@ public class WicketApplication extends WebApplication {
 		try {
 			InputStream inputStream = WicketApplication.class.getResourceAsStream("/config.properties");
 			if (inputStream == null) {
-				final File configFile = new File("../appconfig/sonos-nowplaying.properties");
+				final File configFile = new File("./appconfig/sonos-nowplaying.properties");
 				LOG.info("config file: {}", configFile.getCanonicalPath());
 				inputStream = new FileInputStream(configFile);
 			}
