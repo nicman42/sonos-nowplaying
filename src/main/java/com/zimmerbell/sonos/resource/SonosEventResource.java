@@ -34,8 +34,8 @@ import org.wicketstuff.push.IPushNode;
 import org.wicketstuff.push.timer.TimerPushService;
 
 import com.google.gson.Gson;
+import com.zimmerbell.sonos.WicketApplication;
 import com.zimmerbell.sonos.WicketSession;
-import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.IEventType;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
@@ -54,12 +54,7 @@ public class SonosEventResource extends AbstractResource {
 	static {
 		LOG.debug("init (listeners.size()={})", listeners.size());
 
-		final Properties properties = new Properties();
-		try {
-			properties.load(AbstractBasePage.class.getResourceAsStream("/config.properties"));
-		} catch (final IOException e) {
-			LOG.warn(e.getMessage());
-		}
+		final Properties properties = WicketApplication.getConfigProperties();
 
 		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
 		if (SONOS_HOUSEHOLD != null) {

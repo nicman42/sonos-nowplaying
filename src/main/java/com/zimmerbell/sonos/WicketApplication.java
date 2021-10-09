@@ -1,5 +1,11 @@
 package com.zimmerbell.sonos;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -68,6 +74,22 @@ public class WicketApplication extends WebApplication {
 		super.onDestroy();
 
 		SonosEventResource.removeAllSonosEventListener();
+	}
+
+	public static Properties getConfigProperties() {
+		final Properties properties = new Properties();
+		try {
+			InputStream inputStream = WicketApplication.class.getResourceAsStream("/config.properties");
+			if (inputStream == null) {
+				final File configFile = new File("../appconfig/sonos-nowplaying.properties");
+				LOG.info("config file: {}", configFile.getCanonicalPath());
+				inputStream = new FileInputStream(configFile);
+			}
+			properties.load(inputStream);
+		} catch (final IOException e) {
+			LOG.warn(e.getMessage());
+		}
+		return properties;
 	}
 
 }

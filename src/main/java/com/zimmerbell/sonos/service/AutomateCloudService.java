@@ -12,7 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zimmerbell.sonos.page.AbstractBasePage;
+import com.zimmerbell.sonos.WicketApplication;
 
 public class AutomateCloudService {
 	private static final Logger LOG = LoggerFactory.getLogger(AutomateCloudService.class);
@@ -20,13 +20,7 @@ public class AutomateCloudService {
 	public static final String AUTOMATE_SECRET;
 	public static final String AUTOMATE_EMAIL;
 	static {
-		final Properties properties = new Properties();
-		try {
-			properties.load(AbstractBasePage.class.getResourceAsStream("/config.properties"));
-		} catch (final IOException e) {
-			LOG.error(e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
+		final Properties properties = WicketApplication.getConfigProperties();
 		AUTOMATE_SECRET = properties.getProperty("automate_secret");
 		AUTOMATE_EMAIL = properties.getProperty("automate_email");
 	}

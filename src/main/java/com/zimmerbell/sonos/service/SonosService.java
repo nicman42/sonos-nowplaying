@@ -31,8 +31,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.zimmerbell.sonos.WicketApplication;
 import com.zimmerbell.sonos.WicketSession;
-import com.zimmerbell.sonos.page.AbstractBasePage;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
@@ -48,13 +48,7 @@ public class SonosService implements Serializable {
 	public static final String SONOS_CLIENT_ID;
 	public static final String SONOS_CLIENT_SECRET;
 	static {
-		final Properties properties = new Properties();
-		try {
-			properties.load(AbstractBasePage.class.getResourceAsStream("/config.properties"));
-		} catch (final IOException e) {
-			LOG.error(e.getMessage(), e);
-			throw new RuntimeException(e);
-		}
+		final Properties properties = WicketApplication.getConfigProperties();
 		REDIRECT_URI = properties.getProperty("redirect_uri");
 		SONOS_CLIENT_ID = properties.getProperty("sonos_client_id");
 		SONOS_CLIENT_SECRET = properties.getProperty("sonos_client_secret");
