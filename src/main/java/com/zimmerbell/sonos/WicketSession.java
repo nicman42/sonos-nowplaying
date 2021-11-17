@@ -1,7 +1,6 @@
 package com.zimmerbell.sonos;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -13,14 +12,13 @@ import org.slf4j.LoggerFactory;
 
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
+import com.zimmerbell.sonos.pojo.SonosAuthToken;
 import com.zimmerbell.sonos.service.SonosService;
 
 public class WicketSession extends WebSession {
 	private static final Logger LOG = LoggerFactory.getLogger(WicketSession.class);
 
-	private String accessToken;
-	private String refreshToken;
-	private LocalDateTime accessTokenExpirationDate;
+	private final SonosAuthToken sonosAuthToken = new SonosAuthToken();
 
 	private List<Household> households;
 	private Household household;
@@ -29,7 +27,7 @@ public class WicketSession extends WebSession {
 
 	public WicketSession(Request request) {
 		super(request);
-		
+
 		LOG.info("new wicket session");
 	}
 
@@ -37,34 +35,14 @@ public class WicketSession extends WebSession {
 		return (WicketSession) WebSession.get();
 	}
 
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
-	}
-
-	public String getRefreshToken() {
-		return refreshToken;
-	}
-
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
-	}
-
-	public LocalDateTime getAccessTokenExpirationDate() {
-		return accessTokenExpirationDate;
-	}
-
-	public void setAccessTokenExpirationDate(LocalDateTime accessTokenExpirationDate) {
-		this.accessTokenExpirationDate = accessTokenExpirationDate;
+	public SonosAuthToken getSonosAuthToken() {
+		return sonosAuthToken;
 	}
 
 	public List<Household> getHouseholds() {
 		if (households == null) {
 			try {
-				households = new SonosService().queryHouseholds();
+				households = new SonosService().queryHouseholds(getSonosAuthToken());
 			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -87,7 +65,7 @@ public class WicketSession extends WebSession {
 				groups = Collections.emptyList();
 			} else {
 				try {
-					groups = new SonosService().queryGroups(household);
+					groups = new SonosService().queryGroups(getSonosAuthToken(), household);
 				} catch (final IOException e) {
 					throw new RuntimeException(e);
 				}
@@ -104,14 +82,14 @@ public class WicketSession extends WebSession {
 		if (!Objects.equals(this.group, group)) {
 			if (this.group != null) {
 				try {
-					new SonosService().unsubscribe(this.group);
+					new SonosService().unsubscribe(getSonosAuthToken(), this.group);
 				} catch (final IOException e) {
 					LOG.error(e.getMessage(), e);
 				}
 			}
 			if (group != null) {
 				try {
-					new SonosService().subscribe(group);
+					new SonosService().subscribe(getSonosAuthToken(), group);
 				} catch (final IOException e) {
 					LOG.error(e.getMessage(), e);
 				}

@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
+import com.zimmerbell.sonos.WicketSession;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.PlaybackStatus;
 import com.zimmerbell.sonos.service.SonosService;
@@ -25,7 +26,7 @@ public class PlaybackStatusModel extends LoadableDetachableModel<PlaybackStatus>
 		final Group group = groupModel.getObject();
 		if (group != null) {
 			try {
-				playbackStatus = sonosService.queryPlaybackStatus(group);
+				playbackStatus = sonosService.queryPlaybackStatus(WicketSession.get().getSonosAuthToken(), group);
 			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}

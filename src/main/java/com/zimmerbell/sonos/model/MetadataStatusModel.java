@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
+import com.zimmerbell.sonos.WicketSession;
 import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.service.SonosService;
@@ -26,7 +27,7 @@ public class MetadataStatusModel extends LoadableDetachableModel<MetadataStatus>
 		final Group group = groupModel.getObject();
 		if (group != null) {
 			try {
-				metadataStatus = sonosService.queryPlaybackMetadataStatus(group);
+				metadataStatus = sonosService.queryPlaybackMetadataStatus(WicketSession.get().getSonosAuthToken(), group);
 			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}

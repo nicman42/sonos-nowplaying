@@ -37,6 +37,7 @@ import com.zimmerbell.sonos.pojo.Group;
 import com.zimmerbell.sonos.pojo.Household;
 import com.zimmerbell.sonos.pojo.MetadataStatus;
 import com.zimmerbell.sonos.pojo.PlaybackStatus;
+import com.zimmerbell.sonos.pojo.SonosAuthToken;
 import com.zimmerbell.sonos.resource.SonosEventResource;
 
 public class SonosService implements Serializable {
@@ -72,8 +73,10 @@ public class SonosService implements Serializable {
 		}
 
 		final String authCode = pageParameters.get(PAGE_PARAM_AUTH_CODE).toString();
-		String accessToken = WicketSession.get().getAccessToken();
-		LocalDateTime accessTokenExpirationDate = WicketSession.get().getAccessTokenExpirationDate();
+		
+		final SonosAuthToken sonosAuthToken = WicketSession.get().getSonosAuthToken();
+		String accessToken = sonosAuthToken.getAccessToken();
+		LocalDateTime accessTokenExpirationDate = sonosAuthToken.getAccessTokenExpirationDate();
 
 		if (authCode != null //
 				|| (accessTokenExpirationDate != null
@@ -101,7 +104,7 @@ public class SonosService implements Serializable {
 							+ "code=" + authCode + "&" //
 							+ "redirect_uri=" + redirectUri;
 				} else {
-					final String refreshToken = WicketSession.get().getRefreshToken();
+					final String refreshToken = sonosAuthToken.getRefreshToken();
 					LOG.info("refreshToken: {}", refreshToken);
 					postParams = "grant_type=refresh_token&" //
 							+ "refresh_token=" + refreshToken;
@@ -121,12 +124,12 @@ public class SonosService implements Serializable {
 				final JSONObject json = new JSONObject(response);
 
 				accessToken = json.getString("access_token");
-				WicketSession.get().setAccessToken(accessToken);
+				sonosAuthToken.setAccessToken(accessToken);
 
 				accessTokenExpirationDate = LocalDateTime.now().plusSeconds(json.getInt("expires_in"));
-				WicketSession.get().setAccessTokenExpirationDate(accessTokenExpirationDate);
+				sonosAuthToken.setAccessTokenExpirationDate(accessTokenExpirationDate);
 
-				WicketSession.get().setRefreshToken(json.getString("refresh_token"));
+				sonosAuthToken.setRefreshToken(json.getString("refresh_token"));
 
 				throw new RestartResponseException(pageClass, pageParameters);
 			} catch (final IOException e) {
@@ -147,11 +150,11 @@ public class SonosService implements Serializable {
 
 	}
 
-	private JsonElement apiRequest(String... path) throws IOException {
-		return apiRequestMethod(null, path);
+	private JsonElement apiRequest(SonosAuthToken sonosAuthToken, String... path) throws IOException {
+		return apiRequestMethod(sonosAuthToken, null, path);
 	}
 
-	private JsonElement apiRequestMethod(String method, String... path) throws IOException {
+	private JsonElement apiRequestMethod(SonosAuthToken sonosAuthToken, String method, String... path) throws IOException {
 		final StringBuilder url = new StringBuilder("https://api.ws.sonos.com/control/api/v1");
 		for (final String s : path) {
 			if (s != null) {
@@ -165,7 +168,7 @@ public class SonosService implements Serializable {
 			con.setRequestMethod(method);
 		}
 
-		con.setRequestProperty("Authorization", "Bearer " + WicketSession.get().getAccessToken());
+		con.setRequestProperty("Authorization", "Bearer " + sonosAuthToken.getAccessToken());
 
 		LOG.debug("reponse message: {}", con.getResponseMessage());
 
@@ -175,8 +178,8 @@ public class SonosService implements Serializable {
 		return new JsonParser().parse(response);
 	}
 
-	public List<Household> queryHouseholds() throws IOException {
-		final JsonArray jsonArray = apiRequest("households").getAsJsonObject().get("households").getAsJsonArray();
+	public List<Household> queryHouseholds(SonosAuthToken sonosAuthToken) throws IOException {
+		final JsonArray jsonArray = apiRequest(sonosAuthToken, "households").getAsJsonObject().get("households").getAsJsonArray();
 		final List<Household> households = jsonToList(jsonArray, Household.class);
 		int i = 1;
 		for (final Household household : households) {
@@ -187,22 +190,22 @@ public class SonosService implements Serializable {
 		return households;
 	}
 
-	public List<Group> queryGroups(Household household) throws IOException {
-		final JsonArray groups = apiRequest("households", household.getId(), "groups").getAsJsonObject().get("groups")
+	public List<Group> queryGroups(SonosAuthToken sonosAuthToken, Household household) throws IOException {
+		final JsonArray groups = apiRequest(sonosAuthToken, "households", household.getId(), "groups").getAsJsonObject().get("groups")
 				.getAsJsonArray();
 		final List<Group> groupsList = jsonToList(groups, Group.class);
 		groupsList.stream().forEach(g -> g.setHousehold(household));
 		return groupsList;
 	}
 
-	public MetadataStatus queryPlaybackMetadataStatus(Group group) throws IOException {
-		final JsonElement json = apiRequest("groups", group.getId(), "playbackMetadata");
+	public MetadataStatus queryPlaybackMetadataStatus(SonosAuthToken sonosAuthToken, Group group) throws IOException {
+		final JsonElement json = apiRequest(sonosAuthToken, "groups", group.getId(), "playbackMetadata");
 
 		return jsonToObject(json, MetadataStatus.class);
 	}
 
-	public PlaybackStatus queryPlaybackStatus(Group group) throws IOException {
-		final JsonElement json = apiRequest("groups", group.getId(), "playback");
+	public PlaybackStatus queryPlaybackStatus(SonosAuthToken sonosAuthToken, Group group) throws IOException {
+		final JsonElement json = apiRequest(sonosAuthToken, "groups", group.getId(), "playback");
 
 		return jsonToObject(json, PlaybackStatus.class);
 	}
@@ -213,25 +216,25 @@ public class SonosService implements Serializable {
 				.collect(Collectors.toList());
 	}
 
-	public void subscribe(Group group) throws IOException {
+	public void subscribe(SonosAuthToken sonosAuthToken, Group group) throws IOException {
 		if (REDIRECT_URI.contains("localhost")) {
 			LOG.info("don't subscribe on localhost");
 			return;
 		}
 		LOG.info("subscribe to group '{}'", group.getName());
-		apiRequestMethod("POST", "groups/" + group.getId() + "/playbackMetadata/subscription");
-		apiRequestMethod("POST", "groups/" + group.getId() + "/playback/subscription");
+		apiRequestMethod(sonosAuthToken, "POST", "groups/" + group.getId() + "/playbackMetadata/subscription");
+		apiRequestMethod(sonosAuthToken, "POST", "groups/" + group.getId() + "/playback/subscription");
 	}
 
-	public void unsubscribe(Group group) throws IOException {
+	public void unsubscribe(SonosAuthToken sonosAuthToken, Group group) throws IOException {
 		final Household household = group.getHousehold();
 		if (household != null && Objects.equals(household.getId(), SonosEventResource.SONOS_HOUSEHOLD)) {
 			LOG.debug("don't unsubscribe on main household");
 			return;
 		}
 		LOG.info("unsubscribe from group '{}'", group.getName());
-		apiRequestMethod("DELETE", "groups/" + group.getId() + "/playbackMetadata/subscription");
-		apiRequestMethod("DELETE", "groups/" + group.getId() + "/playback/subscription");
+		apiRequestMethod(sonosAuthToken, "DELETE", "groups/" + group.getId() + "/playbackMetadata/subscription");
+		apiRequestMethod(sonosAuthToken, "DELETE", "groups/" + group.getId() + "/playback/subscription");
 	}
 
 	private <T> T jsonToObject(JsonElement jsonElement, Class<T> classOfT) {
