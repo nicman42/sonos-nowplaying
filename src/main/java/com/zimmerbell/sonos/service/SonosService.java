@@ -64,7 +64,7 @@ public class SonosService implements Serializable {
 	 * 
 	 * @return access token
 	 */
-	public void login(Class<? extends Page> pageClass, PageParameters pageParameters) {
+	public void auth(Class<? extends Page> pageClass, PageParameters pageParameters) {
 		String redirectUri;
 		try {
 			redirectUri = URLEncoder.encode(REDIRECT_URI, "UTF8");
@@ -73,15 +73,16 @@ public class SonosService implements Serializable {
 		}
 
 		final String authCode = pageParameters.get(PAGE_PARAM_AUTH_CODE).toString();
-		
+
 		final SonosAuthToken sonosAuthToken = WicketSession.get().getSonosAuthToken();
-		String accessToken = sonosAuthToken.getAccessToken();
-		LocalDateTime accessTokenExpirationDate = sonosAuthToken.getAccessTokenExpirationDate();
+		final String accessToken = sonosAuthToken.getAccessToken();
+		final LocalDateTime accessTokenExpirationDate = sonosAuthToken.getAccessTokenExpirationDate();
 
 		if (authCode != null //
 				|| (accessTokenExpirationDate != null
 						&& accessTokenExpirationDate.isBefore(LocalDateTime.now().plusMinutes(1))) //
 				|| pageParameters.get(PAGE_PARAM_FORCE_REFRESH_TOKEN).toString() != null) {
+
 			LOG.info("authCode: {}", authCode);
 			LOG.info("accessTokenExpirationDate: {}", accessTokenExpirationDate);
 			pageParameters.remove(PAGE_PARAM_AUTH_CODE, authCode);
@@ -89,47 +90,7 @@ public class SonosService implements Serializable {
 			pageParameters.remove(PAGE_PARAM_FORCE_REFRESH_TOKEN,
 					pageParameters.get(PAGE_PARAM_FORCE_REFRESH_TOKEN).toString());
 			try {
-				final HttpURLConnection con = (HttpURLConnection) new URL("https://api.sonos.com/login/v3/oauth/access")
-						.openConnection();
-
-				final String clientIdAndSecret = Base64.getUrlEncoder()
-						.encodeToString((SONOS_CLIENT_ID + ":" + SONOS_CLIENT_SECRET).getBytes());
-				con.setRequestProperty("Authorization", "Basic " + clientIdAndSecret);
-
-				con.setRequestMethod("POST");
-
-				final String postParams;
-				if (authCode != null) {
-					postParams = "grant_type=authorization_code&" //
-							+ "code=" + authCode + "&" //
-							+ "redirect_uri=" + redirectUri;
-				} else {
-					final String refreshToken = sonosAuthToken.getRefreshToken();
-					LOG.info("refreshToken: {}", refreshToken);
-					postParams = "grant_type=refresh_token&" //
-							+ "refresh_token=" + refreshToken;
-				}
-				final byte[] postParamsBytes = postParams.getBytes(StandardCharsets.UTF_8);
-				con.setRequestProperty("Content-Length", Integer.toString(postParamsBytes.length));
-				con.setDoOutput(true);
-				try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-					wr.write(postParamsBytes);
-				}
-
-				LOG.info("response message: {}", con.getResponseMessage());
-
-				final String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8.name());
-				LOG.info("response: {}", response);
-
-				final JSONObject json = new JSONObject(response);
-
-				accessToken = json.getString("access_token");
-				sonosAuthToken.setAccessToken(accessToken);
-
-				accessTokenExpirationDate = LocalDateTime.now().plusSeconds(json.getInt("expires_in"));
-				sonosAuthToken.setAccessTokenExpirationDate(accessTokenExpirationDate);
-
-				sonosAuthToken.setRefreshToken(json.getString("refresh_token"));
+				auth(sonosAuthToken, authCode, redirectUri);
 
 				throw new RestartResponseException(pageClass, pageParameters);
 			} catch (final IOException e) {
@@ -150,11 +111,65 @@ public class SonosService implements Serializable {
 
 	}
 
+	public void authRefresh(SonosAuthToken sonosAuthToken) throws IOException {
+		final LocalDateTime accessTokenExpirationDate = sonosAuthToken.getAccessTokenExpirationDate();
+		if (accessTokenExpirationDate != null
+				&& accessTokenExpirationDate.isBefore(LocalDateTime.now().plusMinutes(1))) {
+			LOG.info("explicit auth refresh (accessTokenExpirationDate: {})", accessTokenExpirationDate);
+			auth(sonosAuthToken, null, null);
+		} else {
+			LOG.info("no auth refresh (accessTokenExpirationDate: {})", accessTokenExpirationDate);
+		}
+	}
+
+	private void auth(SonosAuthToken sonosAuthToken, String authCode, String redirectUri) throws IOException {
+		final HttpURLConnection con = (HttpURLConnection) new URL("https://api.sonos.com/login/v3/oauth/access")
+				.openConnection();
+
+		final String clientIdAndSecret = Base64.getUrlEncoder()
+				.encodeToString((SONOS_CLIENT_ID + ":" + SONOS_CLIENT_SECRET).getBytes());
+		con.setRequestProperty("Authorization", "Basic " + clientIdAndSecret);
+
+		con.setRequestMethod("POST");
+
+		final String postParams;
+		if (authCode != null) {
+			postParams = "grant_type=authorization_code&" //
+					+ "code=" + authCode + "&" //
+					+ "redirect_uri=" + redirectUri;
+		} else {
+			final String refreshToken = sonosAuthToken.getRefreshToken();
+			LOG.info("refreshToken: {}", refreshToken);
+			postParams = "grant_type=refresh_token&" //
+					+ "refresh_token=" + refreshToken;
+		}
+		final byte[] postParamsBytes = postParams.getBytes(StandardCharsets.UTF_8);
+		con.setRequestProperty("Content-Length", Integer.toString(postParamsBytes.length));
+		con.setDoOutput(true);
+		try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+			wr.write(postParamsBytes);
+		}
+
+		LOG.info("response message: {}", con.getResponseMessage());
+
+		final String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8.name());
+		LOG.info("response: {}", response);
+
+		final JSONObject json = new JSONObject(response);
+
+		sonosAuthToken.setAccessToken(json.getString("access_token"));
+		sonosAuthToken.setAccessTokenExpirationDate(LocalDateTime.now().plusSeconds(json.getInt("expires_in")));
+		sonosAuthToken.setRefreshToken(json.getString("refresh_token"));
+
+		LOG.info("accessTokenExpirationDate: {}", sonosAuthToken.getAccessTokenExpirationDate());
+	}
+
 	private JsonElement apiRequest(SonosAuthToken sonosAuthToken, String... path) throws IOException {
 		return apiRequestMethod(sonosAuthToken, null, path);
 	}
 
-	private JsonElement apiRequestMethod(SonosAuthToken sonosAuthToken, String method, String... path) throws IOException {
+	private JsonElement apiRequestMethod(SonosAuthToken sonosAuthToken, String method, String... path)
+			throws IOException {
 		final StringBuilder url = new StringBuilder("https://api.ws.sonos.com/control/api/v1");
 		for (final String s : path) {
 			if (s != null) {
@@ -179,7 +194,8 @@ public class SonosService implements Serializable {
 	}
 
 	public List<Household> queryHouseholds(SonosAuthToken sonosAuthToken) throws IOException {
-		final JsonArray jsonArray = apiRequest(sonosAuthToken, "households").getAsJsonObject().get("households").getAsJsonArray();
+		final JsonArray jsonArray = apiRequest(sonosAuthToken, "households").getAsJsonObject().get("households")
+				.getAsJsonArray();
 		final List<Household> households = jsonToList(jsonArray, Household.class);
 		int i = 1;
 		for (final Household household : households) {
@@ -191,8 +207,8 @@ public class SonosService implements Serializable {
 	}
 
 	public List<Group> queryGroups(SonosAuthToken sonosAuthToken, Household household) throws IOException {
-		final JsonArray groups = apiRequest(sonosAuthToken, "households", household.getId(), "groups").getAsJsonObject().get("groups")
-				.getAsJsonArray();
+		final JsonArray groups = apiRequest(sonosAuthToken, "households", household.getId(), "groups").getAsJsonObject()
+				.get("groups").getAsJsonArray();
 		final List<Group> groupsList = jsonToList(groups, Group.class);
 		groupsList.stream().forEach(g -> g.setHousehold(household));
 		return groupsList;
