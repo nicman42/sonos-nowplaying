@@ -126,7 +126,7 @@ public class SonosEventResource extends AbstractResource {
 	}
 
 	public static void removeAllSonosEventListener() {
-		for (final Collection<SonosEventListener<?>> listener : listeners.values()) {
+		for (final Collection<SonosEventListener<?>> listener : new ArrayList<>(listeners.values())) {
 			for (final SonosEventListener<?> l : listener) {
 				removeSonosEventListener(l);
 			}
