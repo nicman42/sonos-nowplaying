@@ -18,6 +18,10 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import javax.ejb.LocalBean;
+import javax.ejb.Schedule;
+import javax.ejb.Stateless;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Page;
 import org.apache.wicket.RestartResponseException;
@@ -40,6 +44,8 @@ import com.zimmerbell.sonos.pojo.PlaybackStatus;
 import com.zimmerbell.sonos.pojo.SonosAuthToken;
 import com.zimmerbell.sonos.resource.SonosEventResource;
 
+@Stateless
+@LocalBean
 public class SonosService implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -57,6 +63,8 @@ public class SonosService implements Serializable {
 	private static final String PAGE_PARAM_AUTH_CODE = "code";
 	private static final String PAGE_PARAM_STATE = "state";
 	private static final String PAGE_PARAM_FORCE_REFRESH_TOKEN = "reauth";
+	
+	private static SonosAuthToken resistantSonosAuthToken;
 
 	private transient Gson gson;
 
@@ -111,7 +119,7 @@ public class SonosService implements Serializable {
 
 	}
 
-	public void authRefresh(SonosAuthToken sonosAuthToken) throws IOException {
+	private void authRefresh(SonosAuthToken sonosAuthToken) throws IOException {
 		final LocalDateTime accessTokenExpirationDate = sonosAuthToken.getAccessTokenExpirationDate();
 		if (accessTokenExpirationDate != null
 				&& accessTokenExpirationDate.isBefore(LocalDateTime.now().plusMinutes(1))) {
@@ -120,6 +128,13 @@ public class SonosService implements Serializable {
 		} else {
 			LOG.info("no auth refresh (accessTokenExpirationDate: {})", accessTokenExpirationDate);
 		}
+	}
+	
+	@Schedule(hour = "0,12", minute = "0", persistent = false)
+	public void authRefresh() throws IOException {
+		LOG.info("auth refresh");
+
+		authRefresh(resistantSonosAuthToken);
 	}
 
 	private void auth(SonosAuthToken sonosAuthToken, String authCode, String redirectUri) throws IOException {
@@ -201,6 +216,11 @@ public class SonosService implements Serializable {
 		for (final Household household : households) {
 			if (household.getName() == null) {
 				household.setName("Household#" + i++);
+			}
+			if (Objects.equals(household.getId(), SonosEventResource.SONOS_HOUSEHOLD)
+					&& resistantSonosAuthToken == null) {
+				LOG.info("save auth info");
+				resistantSonosAuthToken = sonosAuthToken;
 			}
 		}
 		return households;
