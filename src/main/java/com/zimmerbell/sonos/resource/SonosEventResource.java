@@ -58,6 +58,7 @@ public class SonosEventResource extends AbstractResource {
 
 		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
 		if (SONOS_HOUSEHOLD != null) {
+			LOG.info("add sonos event listener for automate cloud service");
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
 				@Override
 				public void onEvent(Event<PlaybackStatus> event) {
