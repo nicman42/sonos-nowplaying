@@ -57,6 +57,7 @@ public class SonosEventResource extends AbstractResource {
 		final Properties properties = WicketApplication.getConfigProperties();
 
 		SONOS_HOUSEHOLD = properties.getProperty("sonos_household");
+		LOG.debug("SONOS_HOUSEHOLD: {}", SONOS_HOUSEHOLD);
 		if (SONOS_HOUSEHOLD != null) {
 			LOG.info("add sonos event listener for automate cloud service");
 			addSonosEventListener(new SonosEventListener<PlaybackStatus>(PlaybackStatus.class, SONOS_HOUSEHOLD) {
