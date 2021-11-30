@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zimmerbell.sonos.page.StatusPage;
-import com.zimmerbell.sonos.page.TestPage;
 import com.zimmerbell.sonos.resource.SonosEventResource;
 
 import de.agilecoders.wicket.core.Bootstrap;
@@ -55,7 +54,6 @@ public class WicketApplication extends WebApplication {
 			}
 
 		});
-		mountPage("test", TestPage.class);
 	}
 
 	@Override
