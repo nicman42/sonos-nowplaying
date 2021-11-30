@@ -5,6 +5,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -164,7 +165,7 @@ public class SonosEventResource extends AbstractResource {
 		final String targetValue = request.getHeader("X-Sonos-Target-Value");
 
 		try {
-			final String content = IOUtils.toString(request.getInputStream());
+			final String content = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 			LOG.info("{}/{}: {}", namespace, type, content);
 			final EventKey eventKey = new EventKey(namespace, type, householdId);
 

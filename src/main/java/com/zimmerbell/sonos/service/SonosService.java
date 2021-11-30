@@ -202,7 +202,7 @@ public class SonosService implements Serializable {
 
 		LOG.debug("reponse message: {}", con.getResponseMessage());
 
-		final String response = IOUtils.toString(con.getInputStream(), "utf8" + "");
+		final String response = IOUtils.toString(con.getInputStream(), StandardCharsets.UTF_8);
 		LOG.debug("response: {}", response);
 
 		return new JsonParser().parse(response);
