@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 import org.apache.wicket.Page;
@@ -35,6 +36,8 @@ public class WicketApplication extends WebApplication {
 	@Override
 	protected void init() {
 		super.init();
+		
+		LOG.info("default encoding: {}", Charset.defaultCharset().name());
 
 		// disable version number in url
 		getRequestCycleSettings().setRenderStrategy(RenderStrategy.ONE_PASS_RENDER);
